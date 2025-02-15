@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Plus, Trash } from 'lucide-react';
+import { ChevronRight, ChevronDown, Trash } from 'lucide-react';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 
 interface Props {
@@ -30,13 +30,6 @@ export function OutlineItem({
   useEffect(() => {
     if (focusId === item.id && contentRef.current) {
       contentRef.current.focus();
-      // Place cursor at the end of the text
-      const range = document.createRange();
-      const selection = window.getSelection();
-      range.selectNodeContents(contentRef.current);
-      range.collapse(false);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
     }
   }, [focusId, item.id]);
 
@@ -66,14 +59,16 @@ export function OutlineItem({
           type: 'outdent',
           id: item.id,
           parentId,
-          shouldFocusCurrent: true
+          shouldFocusCurrent: true,
+          content
         });
       } else {
         onOperation({
           type: 'indent',
           id: item.id,
           parentId,
-          shouldFocusCurrent: true
+          shouldFocusCurrent: true,
+          content
         });
       }
     } else if (e.key === 'Backspace' && content === '') {
@@ -105,7 +100,7 @@ export function OutlineItem({
       )}
 
       <div
-        className="flex items-center gap-1 hover:bg-gray-100 rounded px-2 py-1 relative"
+        className="flex items-baseline gap-1 hover:bg-gray-100 rounded px-2 py-1 relative"
         style={{ marginLeft: `${level * 24}px` }}
       >
         <button
@@ -121,7 +116,7 @@ export function OutlineItem({
         <div
           ref={contentRef}
           contentEditable="true"
-          onInput={handleInput}
+          onBlur={handleInput}
           onKeyDown={handleKeyDown}
           onClick={() => onFocusItem(item.id)}
           className="flex-1 cursor-text py-0.5 ml-2 outline-none"

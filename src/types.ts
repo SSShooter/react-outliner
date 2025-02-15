@@ -13,4 +13,5 @@ export interface ItemOperation {
   parentId?: string;
   shouldFocusNew?: boolean;
   shouldFocusCurrent?: boolean;
+  content?: string;
 }

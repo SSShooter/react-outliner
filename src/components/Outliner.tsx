@@ -1,5 +1,4 @@
-import React, { useState, useCallback } from 'react';
-import { Plus } from 'lucide-react';
+import { useState, useCallback } from 'react';
 import { OutlineItem } from './OutlineItem';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 
@@ -43,9 +42,16 @@ export function Outliner({ data, onChange }: OutlinerProps) {
 
   // Notify parent component when items change
   const handleItemsChange = useCallback((newItems: OutlineItemType[]) => {
+    const newNodes = newItems.map(outlineItemToNode);
+    // Only trigger onChange if data actually changed
+    const currentNodesJson = JSON.stringify(newNodes);
+    const previousNodesJson = JSON.stringify(data);
+    
     setItems(newItems);
-    onChange(newItems.map(outlineItemToNode));
-  }, [onChange]);
+    if (currentNodesJson !== previousNodesJson) {
+      onChange(newNodes);
+    }
+  }, [onChange, data]);
 
   const updateItem = (id: string, update: Partial<OutlineItemType>) => {
     const updateItemInTree = (items: OutlineItemType[]): OutlineItemType[] => {
@@ -196,6 +202,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
               const currentIndex = children.findIndex(child => child.id === operation.id);
               if (currentIndex > 0) {
                 const itemToMove = children[currentIndex];
+                itemToMove.content = operation.content || itemToMove.content;
                 const newParent = children[currentIndex - 1];
                 children.splice(currentIndex, 1);
                 newParent.children.push(itemToMove);
@@ -214,6 +221,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
         if (currentIndex > 0) {
           const newItems = [...items];
           const itemToMove = newItems[currentIndex];
+          itemToMove.content = operation.content || itemToMove.content;
           newItems.splice(currentIndex, 1);
           newItems[currentIndex - 1].children.push(itemToMove);
           handleItemsChange(newItems);
@@ -237,6 +245,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
           const targetIndex = parent.children.findIndex(child => child.id === targetId);
           if (targetIndex !== -1) {
             const itemToMove = parent.children[targetIndex];
+            itemToMove.content = operation.content || itemToMove.content;
             // Remove the item from its parent
             parent.children.splice(targetIndex, 1);
             // Insert it after the parent in the root array
@@ -254,6 +263,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
               const targetIndex = childParent.children.findIndex(child => child.id === targetId);
               if (targetIndex !== -1) {
                 const itemToMove = childParent.children[targetIndex];
+                itemToMove.content = operation.content || itemToMove.content;
                 // Remove the item from its parent
                 childParent.children.splice(targetIndex, 1);
                 // Insert it after its parent in the current level
@@ -295,4 +305,4 @@ export function Outliner({ data, onChange }: OutlinerProps) {
       </div>
     </div>
   );
-} 
+}
