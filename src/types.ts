@@ -8,7 +8,7 @@ export interface OutlineItem {
 export type OutlineItemUpdate = Partial<OutlineItem>;
 
 export interface ItemOperation {
-  type: 'addSibling' | 'indent' | 'outdent';
+  type: 'addSibling' | 'indent' | 'outdent' | 'moveUp' | 'moveDown';
   id: string;
   parentId?: string;
   shouldFocusNew?: boolean;

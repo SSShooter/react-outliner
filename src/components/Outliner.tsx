@@ -1,9 +1,12 @@
 import { useState, useCallback } from 'react';
 import { OutlineItem } from './OutlineItem';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
+import { addSiblingOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 
 export type Node = {
+  id: string;
   topic: string;
+  expanded?: boolean;
   children?: Node[];
 };
 
@@ -29,6 +32,7 @@ function nodeToOutlineItem(node: Node): OutlineItemType {
 // Convert OutlineItem format back to Node format
 function outlineItemToNode(item: OutlineItemType): Node {
   return {
+    id: item.id,
     topic: item.content,
     ...(item.children.length > 0 && { children: item.children.map(outlineItemToNode) }),
   };
@@ -75,14 +79,23 @@ export function Outliner({ data, onChange }: OutlinerProps) {
   const deleteItem = (id: string, parentId?: string) => {
     let nextFocusId: string | undefined;
 
+    // Helper function to find the last visible child of an item
+    const findLastVisibleChild = (item: OutlineItemType): string => {
+      if (!item.children.length || item.isCollapsed) {
+        return item.id;
+      }
+      return findLastVisibleChild(item.children[item.children.length - 1]);
+    };
+
     const deleteItemFromTree = (items: OutlineItemType[]): OutlineItemType[] => {
       // Handle root level items
       if (!parentId) {
         const currentIndex = items.findIndex(item => item.id === id);
         if (currentIndex !== -1) {
-          // Set focus to previous sibling if exists
+          // Set focus to previous sibling's last visible child if exists
           if (currentIndex > 0) {
-            nextFocusId = items[currentIndex - 1].id;
+            const prevItem = items[currentIndex - 1];
+            nextFocusId = findLastVisibleChild(prevItem);
           }
         }
       }
@@ -94,9 +107,10 @@ export function Outliner({ data, onChange }: OutlinerProps) {
           if (currentIndex !== -1) {
             const newChildren = [...item.children];
             newChildren.splice(currentIndex, 1);
-            // Set focus to previous sibling if exists, otherwise to parent
+            // Set focus to previous sibling's last visible child if exists, otherwise to parent
             if (currentIndex > 0) {
-              nextFocusId = item.children[currentIndex - 1].id;
+              const prevItem = item.children[currentIndex - 1];
+              nextFocusId = findLastVisibleChild(prevItem);
             } else {
               nextFocusId = item.id;
             }
@@ -164,122 +178,39 @@ export function Outliner({ data, onChange }: OutlinerProps) {
         isCollapsed: false,
       };
 
-      if (operation.parentId) {
-        const addSiblingToParent = (items: OutlineItemType[]): OutlineItemType[] => {
-          return items.map(item => {
-            if (item.id === operation.parentId) {
-              const newChildren = [...item.children];
-              const currentIndex = newChildren.findIndex(child => child.id === operation.id);
-              if (currentIndex !== -1) {
-                newChildren.splice(currentIndex + 1, 0, newItem);
-              }
-              return { ...item, children: newChildren };
-            }
-            if (item.children.length) {
-              return { ...item, children: addSiblingToParent(item.children) };
-            }
-            return item;
-          });
-        };
-        handleItemsChange(addSiblingToParent(items));
-      } else {
-        const currentIndex = items.findIndex(item => item.id === operation.id);
-        if (currentIndex !== -1) {
-          const newItems = [...items];
-          newItems.splice(currentIndex + 1, 0, newItem);
-          handleItemsChange(newItems);
-        }
-      }
+      const newItems = addSiblingOperation(items, operation.id, operation.parentId, newItem);
+      handleItemsChange(newItems);
+      
       if (operation.shouldFocusNew) {
         setFocusId(newItem.id);
       }
     } else if (operation.type === 'indent') {
-      if (operation.parentId) {
-        const indentInParent = (items: OutlineItemType[]): OutlineItemType[] => {
-          return items.map(item => {
-            if (item.id === operation.parentId) {
-              const children = [...item.children];
-              const currentIndex = children.findIndex(child => child.id === operation.id);
-              if (currentIndex > 0) {
-                const itemToMove = children[currentIndex];
-                itemToMove.content = operation.content || itemToMove.content;
-                const newParent = children[currentIndex - 1];
-                children.splice(currentIndex, 1);
-                newParent.children.push(itemToMove);
-                return { ...item, children };
-              }
-            }
-            if (item.children.length) {
-              return { ...item, children: indentInParent(item.children) };
-            }
-            return item;
-          });
-        };
-        handleItemsChange(indentInParent(items));
-      } else {
-        const currentIndex = items.findIndex(item => item.id === operation.id);
-        if (currentIndex > 0) {
-          const newItems = [...items];
-          const itemToMove = newItems[currentIndex];
-          itemToMove.content = operation.content || itemToMove.content;
-          newItems.splice(currentIndex, 1);
-          newItems[currentIndex - 1].children.push(itemToMove);
-          handleItemsChange(newItems);
-        }
-      }
+      const newItems = indentOperation(items, operation.id, operation.parentId, operation.content);
+      handleItemsChange(newItems);
+      
       if (operation.shouldFocusCurrent) {
         setFocusId(operation.id);
       }
     } else if (operation.type === 'outdent') {
       if (!operation.parentId) return;
 
-      const findParentAndOutdent = (
-        items: OutlineItemType[],
-        targetId: string,
-        parentId: string
-      ): OutlineItemType[] => {
-        // First try to handle the case where the parent is at the root level
-        const parentIndex = items.findIndex(item => item.id === parentId);
-        if (parentIndex !== -1) {
-          const parent = items[parentIndex];
-          const targetIndex = parent.children.findIndex(child => child.id === targetId);
-          if (targetIndex !== -1) {
-            const itemToMove = parent.children[targetIndex];
-            itemToMove.content = operation.content || itemToMove.content;
-            // Remove the item from its parent
-            parent.children.splice(targetIndex, 1);
-            // Insert it after the parent in the root array
-            items.splice(parentIndex + 1, 0, itemToMove);
-            return items;
-          }
-        }
-
-        // If not found at root level, recursively search through all items
-        return items.map(item => {
-          if (item.children.length > 0) {
-            const childParentIndex = item.children.findIndex(child => child.id === parentId);
-            if (childParentIndex !== -1) {
-              const childParent = item.children[childParentIndex];
-              const targetIndex = childParent.children.findIndex(child => child.id === targetId);
-              if (targetIndex !== -1) {
-                const itemToMove = childParent.children[targetIndex];
-                itemToMove.content = operation.content || itemToMove.content;
-                // Remove the item from its parent
-                childParent.children.splice(targetIndex, 1);
-                // Insert it after its parent in the current level
-                item.children.splice(childParentIndex + 1, 0, itemToMove);
-              }
-            }
-            return {
-              ...item,
-              children: findParentAndOutdent(item.children, targetId, parentId)
-            };
-          }
-          return item;
-        });
-      };
-
-      handleItemsChange(findParentAndOutdent(items, operation.id, operation.parentId));
+      const newItems = outdentOperation(items, operation.id, operation.parentId, operation.content);
+      handleItemsChange(newItems);
+      
+      if (operation.shouldFocusCurrent) {
+        setFocusId(operation.id);
+      }
+    } else if (operation.type === 'moveUp') {
+      const newItems = moveUpOperation(items, operation.id, operation.parentId);
+      handleItemsChange(newItems);
+      
+      if (operation.shouldFocusCurrent) {
+        setFocusId(operation.id);
+      }
+    } else if (operation.type === 'moveDown') {
+      const newItems = moveDownOperation(items, operation.id, operation.parentId);
+      handleItemsChange(newItems);
+      
       if (operation.shouldFocusCurrent) {
         setFocusId(operation.id);
       }

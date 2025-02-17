@@ -30,12 +30,56 @@ export function OutlineItem({
   useEffect(() => {
     if (focusId === item.id && contentRef.current) {
       contentRef.current.focus();
+      // Move cursor to the end of content
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(contentRef.current);
+      range.collapse(false);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
     }
   }, [focusId, item.id]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const content = contentRef.current?.textContent?.trim()
-    if (e.key === 'Enter') {
+    if (e.key === 'ArrowUp' && e.altKey) {
+      e.preventDefault();
+      onOperation({
+        type: 'moveUp',
+        id: item.id,
+        parentId,
+        shouldFocusCurrent: true
+      });
+    } else if (e.key === 'ArrowDown' && e.altKey) {
+      e.preventDefault();
+      onOperation({
+        type: 'moveDown',
+        id: item.id,
+        parentId,
+        shouldFocusCurrent: true
+      });
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const allItems = document.querySelectorAll('[data-outline-item]');
+      const currentIndex = Array.from(allItems).findIndex(el => el === contentRef.current);
+
+      if (currentIndex === -1) return;
+
+      let nextIndex;
+      if (e.key === 'ArrowUp') {
+        nextIndex = currentIndex - 1;
+      } else {
+        nextIndex = currentIndex + 1;
+      }
+
+      if (nextIndex >= 0 && nextIndex < allItems.length) {
+        const nextItem = allItems[nextIndex] as HTMLElement;
+        const itemId = nextItem.getAttribute('data-item-id');
+        if (itemId) {
+          onFocusItem(itemId);
+        }
+      }
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       if (content) {
         onOperation({
@@ -87,25 +131,25 @@ export function OutlineItem({
   };
 
   return (
-    <div className="group relative">
+    <div className="relative">
       {/* Vertical lines for alignment */}
       {level > 0 && (
         <div
           className="absolute left-0 top-0 bottom-0 border-l-2 border-gray-200"
           style={{
-            left: `${(level * 24) - 10}px`,
+            left: `${(level * 24) - 13}px`,
             height: '100%'
           }}
         />
       )}
 
       <div
-        className="flex items-baseline gap-1 hover:bg-gray-100 rounded px-2 py-1 relative"
+        className="flex items-baseline gap-1 hover:bg-gray-100 rounded px-2 py-1 relative group"
         style={{ marginLeft: `${level * 24}px` }}
       >
         <button
           onClick={toggleCollapse}
-          className={`w-4 h-4 flex items-center justify-center ${item.children.length ? 'visible' : 'invisible'}`}
+          className={`${item.isCollapsed ? '' : 'opacity-0 group-hover:opacity-100'} absolute left-[-19px] top-[13px] w-4 h-4 flex items-center justify-center ${item.children.length ? 'visible' : 'invisible'}`}
         >
           {item.isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
         </button>
@@ -120,6 +164,8 @@ export function OutlineItem({
           onKeyDown={handleKeyDown}
           onClick={() => onFocusItem(item.id)}
           className="flex-1 cursor-text py-0.5 ml-2 outline-none"
+          data-outline-item
+          data-item-id={item.id}
           suppressContentEditableWarning={true}
         >
           {item.content || ' '}
