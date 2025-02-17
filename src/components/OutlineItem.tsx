@@ -31,7 +31,7 @@ export function OutlineItem({
   useEffect(() => {
     if (focusId === item.id && contentRef.current) {
       contentRef.current.focus();
-      // Move cursor to the end of content
+      // Move cursor to the end of topic
       const range = document.createRange();
       const selection = window.getSelection();
       range.selectNodeContents(contentRef.current);
@@ -42,7 +42,7 @@ export function OutlineItem({
   }, [focusId, item.id]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    const content = contentRef.current?.textContent?.trim()
+    const topic = contentRef.current?.textContent?.trim()
     if (e.key === 'ArrowUp' && e.altKey) {
       e.preventDefault();
       onOperation({
@@ -82,7 +82,7 @@ export function OutlineItem({
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (content) {
+      if (topic) {
         onOperation({
           type: 'addSibling',
           id: item.id,
@@ -105,7 +105,7 @@ export function OutlineItem({
           id: item.id,
           parentId,
           shouldFocusCurrent: true,
-          content
+          topic
         });
       } else {
         onOperation({
@@ -113,18 +113,18 @@ export function OutlineItem({
           id: item.id,
           parentId,
           shouldFocusCurrent: true,
-          content
+          topic
         });
       }
-    } else if (e.key === 'Backspace' && content === '') {
+    } else if (e.key === 'Backspace' && topic === '') {
       e.preventDefault();
       onDelete(item.id, parentId);
     }
   };
 
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const content = e.currentTarget.textContent || '';
-    onUpdate(item.id, { content });
+    const topic = e.currentTarget.textContent || '';
+    onUpdate(item.id, { topic });
   };
 
   const toggleCollapse = () => {
@@ -164,12 +164,12 @@ export function OutlineItem({
           onBlur={handleInput}
           onKeyDown={handleKeyDown}
           onClick={() => onFocusItem(item.id)}
-          className="outline-item-content"
+          className="outline-item-topic"
           data-outline-item
           data-item-id={item.id}
           suppressContentEditableWarning={true}
         >
-          {item.content || ' '}
+          {item.topic || ' '}
         </div>
 
         <div className="outline-item-actions">

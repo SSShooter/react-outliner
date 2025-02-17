@@ -42,7 +42,7 @@ export function indentOperation(
   items: OutlineItemType[],
   targetId: string,
   parentId: string | undefined,
-  content?: string
+  topic?: string
 ): OutlineItemType[] {
   if (parentId) {
     return items.map(item => {
@@ -51,7 +51,7 @@ export function indentOperation(
         const currentIndex = children.findIndex(child => child.id === targetId);
         if (currentIndex > 0) {
           const itemToMove = children[currentIndex];
-          itemToMove.content = content || itemToMove.content;
+          itemToMove.topic = topic || itemToMove.topic;
           const newParent = children[currentIndex - 1];
           children.splice(currentIndex, 1);
           newParent.children.push(itemToMove);
@@ -59,7 +59,7 @@ export function indentOperation(
         }
       }
       if (item.children.length) {
-        return { ...item, children: indentOperation(item.children, targetId, parentId, content) };
+        return { ...item, children: indentOperation(item.children, targetId, parentId, topic) };
       }
       return item;
     });
@@ -68,7 +68,7 @@ export function indentOperation(
     if (currentIndex > 0) {
       const newItems = [...items];
       const itemToMove = newItems[currentIndex];
-      itemToMove.content = content || itemToMove.content;
+      itemToMove.topic = topic || itemToMove.topic;
       newItems.splice(currentIndex, 1);
       newItems[currentIndex - 1].children.push(itemToMove);
       return newItems;
@@ -158,7 +158,7 @@ export function outdentOperation(
   items: OutlineItemType[],
   targetId: string,
   parentId: string,
-  content?: string
+  topic?: string
 ): OutlineItemType[] {
   // 处理父节点在根级别的情况
   const parentIndex = items.findIndex(item => item.id === parentId);
@@ -167,7 +167,7 @@ export function outdentOperation(
     const targetIndex = parent.children.findIndex(child => child.id === targetId);
     if (targetIndex !== -1) {
       const itemToMove = parent.children[targetIndex];
-      itemToMove.content = content || itemToMove.content;
+      itemToMove.topic = topic || itemToMove.topic;
       // 从父节点中移除
       parent.children.splice(targetIndex, 1);
       // 插入到父节点后面
@@ -185,7 +185,7 @@ export function outdentOperation(
         const targetIndex = childParent.children.findIndex(child => child.id === targetId);
         if (targetIndex !== -1) {
           const itemToMove = childParent.children[targetIndex];
-          itemToMove.content = content || itemToMove.content;
+          itemToMove.topic = topic || itemToMove.topic;
           // 从父节点中移除
           childParent.children.splice(targetIndex, 1);
           // 插入到父节点后面
@@ -194,7 +194,7 @@ export function outdentOperation(
       }
       return {
         ...item,
-        children: outdentOperation(item.children, targetId, parentId, content)
+        children: outdentOperation(item.children, targetId, parentId, topic)
       };
     }
     return item;

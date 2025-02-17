@@ -1,6 +1,6 @@
 export interface OutlineItem {
   id: string;
-  content: string;
+  topic: string;
   children: OutlineItem[];
   expanded?: boolean;
 }
@@ -13,5 +13,5 @@ export interface ItemOperation {
   parentId?: string;
   shouldFocusNew?: boolean;
   shouldFocusCurrent?: boolean;
-  content?: string;
+  topic?: string;
 }

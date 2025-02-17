@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Outliner, Node } from './components/Outliner'
+import { Outliner } from './components/Outliner'
+import type { OutlineItem as OutlineItemType } from './types';
 
 function App() {
-  const [data, setData] = useState<Node[]>([
+  const [data, setData] = useState<OutlineItemType[]>([
     {
       id: 'xxx',
       topic: 'New Node',

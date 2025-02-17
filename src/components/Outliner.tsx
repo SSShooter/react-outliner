@@ -116,7 +116,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
   const addChild = (parentId: string) => {
     const newItem = {
       id: generateId(),
-      content: '',
+      topic: '',
       children: [],
     };
 
@@ -146,7 +146,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
     if (operation.type === 'addSibling') {
       const newItem = {
         id: generateId(),
-        content: '',
+        topic: '',
         children: [],
       };
 
@@ -157,7 +157,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
         setFocusId(newItem.id);
       }
     } else if (operation.type === 'indent') {
-      const newItems = indentOperation(items, operation.id, operation.parentId, operation.content);
+      const newItems = indentOperation(items, operation.id, operation.parentId, operation.topic);
       handleItemsChange(newItems);
       
       if (operation.shouldFocusCurrent) {
@@ -166,7 +166,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
     } else if (operation.type === 'outdent') {
       if (!operation.parentId) return;
 
-      const newItems = outdentOperation(items, operation.id, operation.parentId, operation.content);
+      const newItems = outdentOperation(items, operation.id, operation.parentId, operation.topic);
       handleItemsChange(newItems);
       
       if (operation.shouldFocusCurrent) {
