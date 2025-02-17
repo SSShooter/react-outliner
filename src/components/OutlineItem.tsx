@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { ChevronRight, ChevronDown, Trash } from 'lucide-react';
+import './OutlineItem.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 
 interface Props {
@@ -131,11 +132,11 @@ export function OutlineItem({
   };
 
   return (
-    <div className="relative">
+    <div className="outline-item-container">
       {/* Vertical lines for alignment */}
       {level > 0 && (
         <div
-          className="absolute left-0 top-0 bottom-0 border-l-2 border-gray-200"
+          className="outline-item-vertical-line"
           style={{
             left: `${(level * 24) - 13}px`,
             height: '100%'
@@ -144,18 +145,18 @@ export function OutlineItem({
       )}
 
       <div
-        className="flex items-baseline gap-1 hover:bg-gray-100 rounded px-2 py-1 relative group"
+        className="outline-item-wrapper"
         style={{ marginLeft: `${level * 24}px` }}
       >
         <button
           onClick={toggleCollapse}
-          className={`${item.isCollapsed ? '' : 'opacity-0 group-hover:opacity-100'} absolute left-[-19px] top-[13px] w-4 h-4 flex items-center justify-center ${item.children.length ? 'visible' : 'invisible'}`}
+          className={`outline-item-collapse-btn ${item.children.length ? '' : 'hidden'} ${item.isCollapsed ? 'collapsed' : 'expanded'}`}
         >
           {item.isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
         </button>
 
         {/* Node dot */}
-        <div className="w-2 h-2 bg-gray-400 rounded-full flex-shrink-0" />
+        <div className="outline-item-dot" />
 
         <div
           ref={contentRef}
@@ -163,7 +164,7 @@ export function OutlineItem({
           onBlur={handleInput}
           onKeyDown={handleKeyDown}
           onClick={() => onFocusItem(item.id)}
-          className="flex-1 cursor-text py-0.5 ml-2 outline-none"
+          className="outline-item-content"
           data-outline-item
           data-item-id={item.id}
           suppressContentEditableWarning={true}
@@ -171,10 +172,10 @@ export function OutlineItem({
           {item.content || ' '}
         </div>
 
-        <div className="opacity-0 group-hover:opacity-100 flex gap-1">
+        <div className="outline-item-actions">
           <button
             onClick={() => onDelete(item.id, parentId)}
-            className="p-1 hover:bg-gray-200 rounded text-red-600"
+            className="outline-item-delete-btn"
             title="Delete"
           >
             <Trash size={14} />

@@ -1,0 +1,87 @@
+.outline-item-container {
+  position: relative;
+}
+
+.outline-item-vertical-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-left: 2px solid #e5e7eb;
+}
+
+.outline-item-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  position: relative;
+}
+
+.outline-item-wrapper:hover {
+  background-color: #f3f4f6;
+}
+
+.outline-item-collapse-btn {
+  position: absolute;
+  left: -19px;
+  top: 13px;
+  width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.outline-item-collapse-btn.hidden {
+  visibility: hidden;
+}
+
+.outline-item-collapse-btn.collapsed {
+  opacity: 1;
+}
+
+.outline-item-collapse-btn.expanded {
+  opacity: 0;
+}
+
+.outline-item-wrapper:hover .outline-item-collapse-btn.expanded {
+  opacity: 1;
+}
+
+.outline-item-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #9ca3af;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.outline-item-content {
+  flex: 1;
+  cursor: text;
+  padding: 0.125rem 0;
+  margin-left: 0.5rem;
+  outline: none;
+}
+
+.outline-item-actions {
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+}
+
+.outline-item-wrapper:hover .outline-item-actions {
+  opacity: 1;
+}
+
+.outline-item-delete-btn {
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  color: #dc2626;
+}
+
+.outline-item-delete-btn:hover {
+  background-color: #e5e7eb;
+}

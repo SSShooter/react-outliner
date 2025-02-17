@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { OutlineItem } from './OutlineItem';
+import './Outliner.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 import { addSiblingOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 
@@ -218,8 +219,8 @@ export function Outliner({ data, onChange }: OutlinerProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">      
-      <div className="">
+    <div className="outliner-container">      
+      <div className="outliner-items">
         {items.map((item) => (
           <OutlineItem
             key={item.id}
