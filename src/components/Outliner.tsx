@@ -5,7 +5,7 @@ import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 import { addSiblingOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 
 
-interface OutlinerProps {
+export interface OutlinerProps {
   data: OutlineItemType[];
   onChange: (data: OutlineItemType[]) => void;
 }

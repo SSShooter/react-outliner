@@ -58,7 +58,7 @@
   flex-shrink: 0;
 }
 
-.outline-item-content {
+.outline-item-topic {
   flex: 1;
   cursor: text;
   padding: 0.125rem 0;
