@@ -4,9 +4,15 @@ import './Outliner.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 import { addSiblingOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 
+export interface OutlineData  {
+  id: string;
+  topic: string;
+  children?: OutlineData[];
+  expanded?: boolean;
+}
 
 export interface OutlinerProps {
-  data: OutlineItemType[];
+  data: OutlineData[];
   onChange: (data: OutlineItemType[]) => void;
 }
 
@@ -14,9 +20,16 @@ function generateId() {
   return Math.random().toString(36).substr(2, 9);
 }
 
+function addChildren(input: OutlineData):OutlineItemType{
+  return {
+    ...input,
+    children: input.children? input.children.map(addChildren):[],
+  }
+}
+
 export function Outliner({ data, onChange }: OutlinerProps) {
   const [items, setItems] = useState<OutlineItemType[]>(
-    data
+    data.map(addChildren)
   );
   const [focusId, setFocusId] = useState<string | undefined>();
 
