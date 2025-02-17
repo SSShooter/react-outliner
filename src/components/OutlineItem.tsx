@@ -128,7 +128,7 @@ export function OutlineItem({
   };
 
   const toggleCollapse = () => {
-    onUpdate(item.id, { isCollapsed: !item.isCollapsed });
+    onUpdate(item.id, { expanded: item.expanded === false ? true : false });
   };
 
   return (
@@ -150,9 +150,9 @@ export function OutlineItem({
       >
         <button
           onClick={toggleCollapse}
-          className={`outline-item-collapse-btn ${item.children.length ? '' : 'hidden'} ${item.isCollapsed ? 'collapsed' : 'expanded'}`}
+          className={`outline-item-collapse-btn ${item.children.length ? '' : 'hidden'} ${item.expanded === false ? 'collapsed' : 'expanded'}`}
         >
-          {item.isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+          {item.expanded === false ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
         </button>
 
         {/* Node dot */}
@@ -183,7 +183,7 @@ export function OutlineItem({
         </div>
       </div>
 
-      {!item.isCollapsed && item.children.map((child) => (
+      {item.expanded !== false && item.children.map((child) => (
         <OutlineItem
           key={child.id}
           item={child}

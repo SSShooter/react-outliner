@@ -2,7 +2,7 @@ export interface OutlineItem {
   id: string;
   content: string;
   children: OutlineItem[];
-  isCollapsed: boolean;
+  expanded?: boolean;
 }
 
 export type OutlineItemUpdate = Partial<OutlineItem>;

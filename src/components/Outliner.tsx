@@ -4,57 +4,31 @@ import './Outliner.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 import { addSiblingOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 
-export type Node = {
-  id: string;
-  topic: string;
-  expanded?: boolean;
-  children?: Node[];
-};
 
 interface OutlinerProps {
-  data: Node[];
-  onChange: (data: Node[]) => void;
+  data: OutlineItemType[];
+  onChange: (data: OutlineItemType[]) => void;
 }
 
 function generateId() {
   return Math.random().toString(36).substr(2, 9);
 }
 
-// Convert Node format to OutlineItem format
-function nodeToOutlineItem(node: Node): OutlineItemType {
-  return {
-    id: generateId(),
-    content: node.topic,
-    children: node.children?.map(nodeToOutlineItem) || [],
-    isCollapsed: false,
-  };
-}
-
-// Convert OutlineItem format back to Node format
-function outlineItemToNode(item: OutlineItemType): Node {
-  return {
-    id: item.id,
-    topic: item.content,
-    ...(item.children.length > 0 && { children: item.children.map(outlineItemToNode) }),
-  };
-}
-
 export function Outliner({ data, onChange }: OutlinerProps) {
-  const [items, setItems] = useState<OutlineItemType[]>(() => 
-    data.map(nodeToOutlineItem)
+  const [items, setItems] = useState<OutlineItemType[]>(
+    data
   );
   const [focusId, setFocusId] = useState<string | undefined>();
 
   // Notify parent component when items change
   const handleItemsChange = useCallback((newItems: OutlineItemType[]) => {
-    const newNodes = newItems.map(outlineItemToNode);
     // Only trigger onChange if data actually changed
-    const currentNodesJson = JSON.stringify(newNodes);
+    const currentNodesJson = JSON.stringify(newItems);
     const previousNodesJson = JSON.stringify(data);
     
     setItems(newItems);
     if (currentNodesJson !== previousNodesJson) {
-      onChange(newNodes);
+      onChange(newItems);
     }
   }, [onChange, data]);
 
@@ -82,7 +56,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
 
     // Helper function to find the last visible child of an item
     const findLastVisibleChild = (item: OutlineItemType): string => {
-      if (!item.children.length || item.isCollapsed) {
+      if (!item.children.length || item.expanded === false) {
         return item.id;
       }
       return findLastVisibleChild(item.children[item.children.length - 1]);
@@ -144,7 +118,6 @@ export function Outliner({ data, onChange }: OutlinerProps) {
       id: generateId(),
       content: '',
       children: [],
-      isCollapsed: false,
     };
 
     const addChildToItem = (items: OutlineItemType[]): OutlineItemType[] => {
@@ -153,7 +126,6 @@ export function Outliner({ data, onChange }: OutlinerProps) {
           return {
             ...item,
             children: [...item.children, newItem],
-            isCollapsed: false
           };
         }
         if (item.children.length) {
@@ -176,7 +148,6 @@ export function Outliner({ data, onChange }: OutlinerProps) {
         id: generateId(),
         content: '',
         children: [],
-        isCollapsed: false,
       };
 
       const newItems = addSiblingOperation(items, operation.id, operation.parentId, newItem);
