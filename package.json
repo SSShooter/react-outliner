@@ -1,6 +1,6 @@
 {
   "name": "react-outliner-neo",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -36,7 +36,8 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/react-outliner-neo.js"
+      "import": "./dist/react-outliner-neo.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
