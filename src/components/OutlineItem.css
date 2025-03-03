@@ -19,10 +19,6 @@
   position: relative;
 }
 
-.outline-item-wrapper:hover {
-  background-color: #f3f4f6;
-}
-
 .outline-item-collapse-btn {
   position: absolute;
   left: -19px;
