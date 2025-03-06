@@ -82,7 +82,16 @@ export function OutlineItem({
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (topic) {
+      if (e.shiftKey) {
+        // Shift+Enter: Add sibling before current node
+        onOperation({
+          type: 'addSiblingBefore',
+          id: item.id,
+          parentId,
+          shouldFocusNew: true
+        });
+      } else if (topic) {
+        // Enter with content: Add sibling after current node
         onOperation({
           type: 'addSibling',
           id: item.id,
@@ -90,6 +99,7 @@ export function OutlineItem({
           shouldFocusNew: true
         });
       } else {
+        // Enter with empty content: Outdent
         onOperation({
           type: 'outdent',
           id: item.id,

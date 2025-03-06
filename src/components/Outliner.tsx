@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { OutlineItem } from './OutlineItem';
 import './Outliner.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
-import { addSiblingOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
+import { addSiblingOperation, addSiblingBeforeOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 
 export interface OutlineData  {
   id: string;
@@ -164,6 +164,19 @@ export function Outliner({ data, onChange }: OutlinerProps) {
       };
 
       const newItems = addSiblingOperation(items, operation.id, operation.parentId, newItem);
+      handleItemsChange(newItems);
+      
+      if (operation.shouldFocusNew) {
+        setFocusId(newItem.id);
+      }
+    } else if (operation.type === 'addSiblingBefore') {
+      const newItem = {
+        id: generateId(),
+        topic: '',
+        children: [],
+      };
+
+      const newItems = addSiblingBeforeOperation(items, operation.id, operation.parentId, newItem);
       handleItemsChange(newItems);
       
       if (operation.shouldFocusNew) {

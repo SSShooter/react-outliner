@@ -36,6 +36,41 @@ export function addSiblingOperation(
 }
 
 /**
+ * 在指定节点前添加一个新的兄弟节点
+ */
+export function addSiblingBeforeOperation(
+  items: OutlineItemType[],
+  targetId: string,
+  parentId: string | undefined,
+  newItem: OutlineItemType
+): OutlineItemType[] {
+  if (parentId) {
+    return items.map(item => {
+      if (item.id === parentId) {
+        const newChildren = [...item.children];
+        const currentIndex = newChildren.findIndex(child => child.id === targetId);
+        if (currentIndex !== -1) {
+          newChildren.splice(currentIndex, 0, newItem);
+        }
+        return { ...item, children: newChildren };
+      }
+      if (item.children.length) {
+        return { ...item, children: addSiblingBeforeOperation(item.children, targetId, parentId, newItem) };
+      }
+      return item;
+    });
+  } else {
+    const currentIndex = items.findIndex(item => item.id === targetId);
+    if (currentIndex !== -1) {
+      const newItems = [...items];
+      newItems.splice(currentIndex, 0, newItem);
+      return newItems;
+    }
+    return items;
+  }
+}
+
+/**
  * 将指定节点缩进（成为其上一个兄弟节点的子节点）
  */
 export function indentOperation(
