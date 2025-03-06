@@ -1,6 +1,64 @@
 import type { OutlineItem as OutlineItemType } from '../types';
 
 /**
+ * 通用的树形结构遍历和操作函数
+ * @param items 要操作的树形数据
+ * @param targetId 目标节点ID
+ * @param parentId 父节点ID
+ * @param operation 对找到的节点执行的操作函数
+ * @returns 操作后的新树形数据
+ */
+function traverseAndOperate(
+  items: OutlineItemType[],
+  targetId: string,
+  parentId: string | undefined,
+  operation: (params: {
+    items: OutlineItemType[],
+    targetIndex: number,
+    parent?: OutlineItemType
+  }) => OutlineItemType[]
+): OutlineItemType[] {
+  // 如果有父节点ID，则在父节点的子节点中查找目标节点
+  if (parentId) {
+    return items.map(item => {
+      // 找到父节点
+      if (item.id === parentId) {
+        const targetIndex = item.children.findIndex(child => child.id === targetId);
+        if (targetIndex !== -1) {
+          // 执行操作并返回更新后的父节点
+          const newChildren = operation({
+            items: [...item.children],
+            targetIndex,
+            parent: item
+          });
+          return { ...item, children: newChildren };
+        }
+        return item;
+      }
+      // 递归处理子节点
+      if (item.children.length) {
+        return {
+          ...item,
+          children: traverseAndOperate(item.children, targetId, parentId, operation)
+        };
+      }
+      return item;
+    });
+  } else {
+    // 在根级别查找目标节点
+    const targetIndex = items.findIndex(item => item.id === targetId);
+    if (targetIndex !== -1) {
+      // 执行操作并返回更新后的数组
+      return operation({
+        items: [...items],
+        targetIndex
+      });
+    }
+    return items;
+  }
+}
+
+/**
  * 在指定节点后添加一个新的兄弟节点
  */
 export function addSiblingOperation(
@@ -9,30 +67,11 @@ export function addSiblingOperation(
   parentId: string | undefined,
   newItem: OutlineItemType
 ): OutlineItemType[] {
-  if (parentId) {
-    return items.map(item => {
-      if (item.id === parentId) {
-        const newChildren = [...item.children];
-        const currentIndex = newChildren.findIndex(child => child.id === targetId);
-        if (currentIndex !== -1) {
-          newChildren.splice(currentIndex + 1, 0, newItem);
-        }
-        return { ...item, children: newChildren };
-      }
-      if (item.children.length) {
-        return { ...item, children: addSiblingOperation(item.children, targetId, parentId, newItem) };
-      }
-      return item;
-    });
-  } else {
-    const currentIndex = items.findIndex(item => item.id === targetId);
-    if (currentIndex !== -1) {
-      const newItems = [...items];
-      newItems.splice(currentIndex + 1, 0, newItem);
-      return newItems;
-    }
-    return items;
-  }
+  return traverseAndOperate(items, targetId, parentId, ({ items, targetIndex }) => {
+    const newItems = [...items];
+    newItems.splice(targetIndex + 1, 0, newItem);
+    return newItems;
+  });
 }
 
 /**
@@ -44,30 +83,11 @@ export function addSiblingBeforeOperation(
   parentId: string | undefined,
   newItem: OutlineItemType
 ): OutlineItemType[] {
-  if (parentId) {
-    return items.map(item => {
-      if (item.id === parentId) {
-        const newChildren = [...item.children];
-        const currentIndex = newChildren.findIndex(child => child.id === targetId);
-        if (currentIndex !== -1) {
-          newChildren.splice(currentIndex, 0, newItem);
-        }
-        return { ...item, children: newChildren };
-      }
-      if (item.children.length) {
-        return { ...item, children: addSiblingBeforeOperation(item.children, targetId, parentId, newItem) };
-      }
-      return item;
-    });
-  } else {
-    const currentIndex = items.findIndex(item => item.id === targetId);
-    if (currentIndex !== -1) {
-      const newItems = [...items];
-      newItems.splice(currentIndex, 0, newItem);
-      return newItems;
-    }
-    return items;
-  }
+  return traverseAndOperate(items, targetId, parentId, ({ items, targetIndex }) => {
+    const newItems = [...items];
+    newItems.splice(targetIndex, 0, newItem);
+    return newItems;
+  });
 }
 
 /**
@@ -79,42 +99,23 @@ export function indentOperation(
   parentId: string | undefined,
   topic?: string
 ): OutlineItemType[] {
-  if (parentId) {
-    return items.map(item => {
-      if (item.id === parentId) {
-        const children = [...item.children];
-        const currentIndex = children.findIndex(child => child.id === targetId);
-        if (currentIndex > 0) {
-          const itemToMove = children[currentIndex];
-          itemToMove.topic = topic || itemToMove.topic;
-          const newParent = children[currentIndex - 1];
-          children.splice(currentIndex, 1);
-          newParent.children.push(itemToMove);
-          return { ...item, children };
-        }
-      }
-      if (item.children.length) {
-        return { ...item, children: indentOperation(item.children, targetId, parentId, topic) };
-      }
-      return item;
-    });
-  } else {
-    const currentIndex = items.findIndex(item => item.id === targetId);
-    if (currentIndex > 0) {
+  return traverseAndOperate(items, targetId, parentId, ({ items, targetIndex }) => {
+    // 只有当目标节点不是第一个节点时才能缩进
+    if (targetIndex > 0) {
       const newItems = [...items];
-      const itemToMove = newItems[currentIndex];
+      const itemToMove = newItems[targetIndex];
+      // 更新主题（如果提供了新主题）
       itemToMove.topic = topic || itemToMove.topic;
-      newItems.splice(currentIndex, 1);
-      newItems[currentIndex - 1].children.push(itemToMove);
+      // 从原位置移除
+      newItems.splice(targetIndex, 1);
+      // 添加到前一个节点的子节点中
+      newItems[targetIndex - 1].children.push(itemToMove);
       return newItems;
     }
     return items;
-  }
+  });
 }
 
-/**
- * 将指定节点取消缩进（移动到其父节点所在层级）
- */
 /**
  * 将指定节点向上移动
  */
@@ -123,33 +124,17 @@ export function moveUpOperation(
   targetId: string,
   parentId: string | undefined
 ): OutlineItemType[] {
-  if (parentId) {
-    return items.map(item => {
-      if (item.id === parentId) {
-        const children = [...item.children];
-        const currentIndex = children.findIndex(child => child.id === targetId);
-        if (currentIndex > 0) {
-          // 交换当前节点和上一个节点的位置
-          [children[currentIndex - 1], children[currentIndex]] = 
-          [children[currentIndex], children[currentIndex - 1]];
-          return { ...item, children };
-        }
-      }
-      if (item.children.length) {
-        return { ...item, children: moveUpOperation(item.children, targetId, parentId) };
-      }
-      return item;
-    });
-  } else {
-    const currentIndex = items.findIndex(item => item.id === targetId);
-    if (currentIndex > 0) {
+  return traverseAndOperate(items, targetId, parentId, ({ items, targetIndex }) => {
+    // 只有当目标节点不是第一个节点时才能向上移动
+    if (targetIndex > 0) {
       const newItems = [...items];
-      [newItems[currentIndex - 1], newItems[currentIndex]] = 
-      [newItems[currentIndex], newItems[currentIndex - 1]];
+      // 交换当前节点和上一个节点的位置
+      [newItems[targetIndex - 1], newItems[targetIndex]] = 
+      [newItems[targetIndex], newItems[targetIndex - 1]];
       return newItems;
     }
     return items;
-  }
+  });
 }
 
 /**
@@ -160,35 +145,22 @@ export function moveDownOperation(
   targetId: string,
   parentId: string | undefined
 ): OutlineItemType[] {
-  if (parentId) {
-    return items.map(item => {
-      if (item.id === parentId) {
-        const children = [...item.children];
-        const currentIndex = children.findIndex(child => child.id === targetId);
-        if (currentIndex !== -1 && currentIndex < children.length - 1) {
-          // 交换当前节点和下一个节点的位置
-          [children[currentIndex], children[currentIndex + 1]] = 
-          [children[currentIndex + 1], children[currentIndex]];
-          return { ...item, children };
-        }
-      }
-      if (item.children.length) {
-        return { ...item, children: moveDownOperation(item.children, targetId, parentId) };
-      }
-      return item;
-    });
-  } else {
-    const currentIndex = items.findIndex(item => item.id === targetId);
-    if (currentIndex !== -1 && currentIndex < items.length - 1) {
+  return traverseAndOperate(items, targetId, parentId, ({ items, targetIndex }) => {
+    // 只有当目标节点不是最后一个节点时才能向下移动
+    if (targetIndex !== -1 && targetIndex < items.length - 1) {
       const newItems = [...items];
-      [newItems[currentIndex], newItems[currentIndex + 1]] = 
-      [newItems[currentIndex + 1], newItems[currentIndex]];
+      // 交换当前节点和下一个节点的位置
+      [newItems[targetIndex], newItems[targetIndex + 1]] = 
+      [newItems[targetIndex + 1], newItems[targetIndex]];
       return newItems;
     }
     return items;
-  }
+  });
 }
 
+/**
+ * 将指定节点取消缩进（移动到其父节点所在层级）
+ */
 export function outdentOperation(
   items: OutlineItemType[],
   targetId: string,

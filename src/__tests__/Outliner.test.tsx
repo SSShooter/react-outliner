@@ -175,6 +175,56 @@ describe('Outliner Component', () => {
     expect(updatedData[0].children[1].topic).toBe('Nested Item 1-1-1');
   });
 
+  it('outdents an item when pressing Enter on an empty item', () => {
+    // Create test data with a nested structure
+    const nestedData: OutlineItem[] = [
+      {
+        id: 'item1',
+        topic: 'Root Item 1',
+        children: [
+          {
+            id: 'item1-1',
+            topic: 'Child Item 1-1',
+            children: [
+              {
+                id: 'item1-1-1',
+                topic: 'Nested Item 1-1-1',
+                children: [],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    
+    render(<Outliner data={nestedData} onChange={onChange} />);
+    
+    // Find the editable content of the nested item
+    const nestedItem = screen.getByText('Nested Item 1-1-1');
+    
+    // First, create a new sibling by pressing Enter
+    fireEvent.click(nestedItem);
+    fireEvent.keyDown(nestedItem, { key: 'Enter' });
+    
+    // Reset the mock to clear previous calls
+    onChange.mockReset();
+    
+    // Now find the newly created empty item (it should be the second child of item1-1)
+    const currentFocus = document.activeElement!;
+    
+    // Press Enter on the empty item to outdent it
+    fireEvent.keyDown(currentFocus, { key: 'Enter' });
+    
+    // Check that onChange was called with updated data
+    expect(onChange).toHaveBeenCalled();
+    const updatedData = onChange.mock.calls[0][0];
+    
+    // Verify the empty item was outdented (became a sibling of its former parent)
+    expect(updatedData[0].children.length).toBe(2);
+    // The second child of the root should be the outdented empty item
+    expect(updatedData[0].children[1].topic).toBe('');
+  });
+
   it('deletes an item when pressing Backspace on an empty item', () => {
     render(<Outliner data={sampleData} onChange={onChange} />);
     
