@@ -15,6 +15,28 @@ interface Props {
   onFocusItem: (id: string) => void;
 }
 
+// More efficient method to check if an item is a descendant of another using DOM contains
+const isDescendant = (targetId: string, draggedId: string): boolean => {
+  // Get DOM elements
+  const draggedElement = document.querySelector(`[data-item-id="${draggedId}"]`);
+  const targetElement = document.querySelector(`[data-item-id="${targetId}"]`);
+
+  // If either element doesn't exist, return false
+  if (!draggedElement || !targetElement) return false;
+
+  // Get the container elements
+  const draggedContainer = draggedElement.closest('.outline-item-container');
+  const targetContainer = targetElement.closest('.outline-item-container');
+
+  // If either container doesn't exist, return false
+  if (!draggedContainer || !targetContainer) return false;
+
+  // Check if the dragged container contains the target container
+  return draggedContainer.contains(targetContainer);
+};
+
+let draggedId: string | undefined;
+
 export function OutlineItem({
   item,
   level,
@@ -26,6 +48,7 @@ export function OutlineItem({
   focusId,
   onFocusItem
 }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,8 +164,103 @@ export function OutlineItem({
     onUpdate(item.id, { expanded: item.expanded === false ? true : false });
   };
 
+  const [dragState, setDragState] = React.useState<'before' | 'inside' | 'after' | undefined>(undefined);
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    draggedId = item.id;
+    e.dataTransfer.effectAllowed = 'move';
+
+    // Add a class to the dragged element
+    e.currentTarget.classList.add('dragging');
+  };
+
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    // Remove the class from the dragged element
+    e.currentTarget.classList.remove('dragging');
+    setDragState(undefined);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    // console.log(`handleDragOver: ${item.id}, draggedId: ${draggedId}`)
+
+    // If we can't get the ID or it's the same as current item, don't show drop indicators
+    if (!draggedId || draggedId === item.id) {
+      setDragState(undefined);
+      return;
+    }
+
+    // If target is a descendant of dragged item, don't allow drop
+    if (isDescendant(item.id, draggedId)) {
+      setDragState(undefined);
+      e.dataTransfer.dropEffect = 'none';
+      return;
+    }
+
+    e.dataTransfer.dropEffect = 'move';
+
+
+    // Get the bounding rectangle of the target element
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseY = e.clientY;
+
+    // Calculate the position relative to the element
+    const relativeY = mouseY - rect.top;
+    const height = rect.height;
+
+    let dragState: 'before' | 'inside' | 'after' | undefined;
+    // Determine drop position based on mouse position
+    // Top 25% - before, middle 50% - inside, bottom 25% - after
+    if (relativeY < height * 0.25) {
+      dragState = 'before';
+    } else if (relativeY > height * 0.75) {
+      dragState = 'after';
+    } else {
+      dragState = 'inside';
+    }
+
+    setDragState(dragState);
+  };
+
+  const handleDragLeave = () => {
+    setDragState(undefined);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+
+    if (draggedId && draggedId !== item.id) {
+      onOperation({
+        id: draggedId,
+        type: 'moveTo',
+        draggedId,
+        targetId: item.id,
+        parentId,
+        dropPosition: dragState,
+        shouldFocusCurrent: true
+      });
+    }
+
+    setDragState(undefined);
+  };
+
+  // Determine the CSS classes based on drag state
+  const dragOverClass = dragState === 'before' ? 'drag-over' :
+    dragState === 'after' ? 'drag-over-bottom' :
+      dragState === 'inside' ? 'drag-over-inside' : '';
+
+
   return (
-    <div className="outline-item-container">
+    <div
+      ref={containerRef}
+      className={`outline-item-container`} 
+      draggable="true" 
+      onDragStart={handleDragStart} 
+      onDragEnd={handleDragEnd} 
+      onDragLeave={handleDragLeave} >
       {/* Vertical lines for alignment */}
       {level > 0 && (
         <div
@@ -155,8 +273,10 @@ export function OutlineItem({
       )}
 
       <div
-        className="outline-item-wrapper"
+        className={`outline-item-wrapper ${dragOverClass}`}
         style={{ marginLeft: `${level * 24}px` }}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
       >
         <button
           onClick={toggleCollapse}

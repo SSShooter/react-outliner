@@ -2,6 +2,41 @@
   position: relative;
 }
 
+.outline-item-container.dragging {
+  opacity: 0.5;
+}
+
+.outline-item-wrapper.drag-over {
+  position: relative;
+}
+
+.outline-item-wrapper.drag-over::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background-color: #3b82f6;
+  z-index: 10;
+}
+
+.outline-item-wrapper.drag-over-bottom::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-color: #3b82f6;
+  z-index: 10;
+}
+
+.outline-item-wrapper.drag-over-inside  {
+  background-color: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
 .outline-item-vertical-line {
   position: absolute;
   left: 0;

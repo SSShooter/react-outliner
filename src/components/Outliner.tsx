@@ -3,6 +3,7 @@ import { OutlineItem } from './OutlineItem';
 import './Outliner.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 import { addSiblingOperation, addSiblingBeforeOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
+import { moveToOperation } from '../utils/moveToOperation';
 
 export interface OutlineData  {
   id: string;
@@ -211,6 +212,16 @@ export function Outliner({ data, onChange }: OutlinerProps) {
       
       if (operation.shouldFocusCurrent) {
         setFocusId(operation.id);
+      }
+    } else if (operation.type === 'moveTo') {
+      if (operation.draggedId && operation.targetId && operation.dropPosition) {
+        const dropPosition = operation.dropPosition;
+        const newItems = moveToOperation(items, operation.draggedId, operation.targetId, dropPosition);
+        handleItemsChange(newItems);
+        
+        if (operation.shouldFocusCurrent) {
+          setFocusId(operation.draggedId);
+        }
       }
     }
   };
