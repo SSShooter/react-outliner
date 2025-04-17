@@ -14,7 +14,7 @@ export interface OutlineData  {
 
 export interface OutlinerProps {
   data: OutlineData[];
-  onChange: (data: OutlineItemType[]) => void;
+  onChange?: (data: OutlineItemType[]) => void;
 }
 
 function generateId() {
@@ -41,7 +41,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
     const previousNodesJson = JSON.stringify(data);
     
     setItems(newItems);
-    if (currentNodesJson !== previousNodesJson) {
+    if (currentNodesJson !== previousNodesJson && onChange) {
       onChange(newItems);
     }
   }, [onChange, data]);

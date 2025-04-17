@@ -1,6 +1,6 @@
 # React Outliner Neo
 
-一个基于React和TypeScript开发的大纲编辑器组件，支持层级结构的内容组织和丰富的快捷键操作。
+一个基于 React 和 TypeScript 开发的大纲编辑器组件，支持层级结构的内容组织和丰富的快捷键操作。
 
 ## 功能特点
 
@@ -17,8 +17,46 @@
 ## 安装
 
 ```bash
-pnpm install
+pnpm i react-outliner-neo
 ```
+
+## 使用方法
+
+```tsx
+import { Outliner } from "react-outliner-neo";
+
+const initialData = [
+  {
+    topic: "根节点",
+    children: [
+      {
+        topic: "子节点1",
+        children: [
+          {
+            topic: "子节点1.1",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+function App() {
+  const handleChange = (data) => {
+    console.log("大纲数据已更新:", data);
+  };
+
+  return <Outliner data={initialData} onChange={handleChange} />;
+}
+```
+
+## 技术栈
+
+- React 18
+- TypeScript
+- Vite
+- TailwindCSS
+- Lucide React (图标库)
 
 ## 开发
 
@@ -31,49 +69,6 @@ pnpm dev
 ```bash
 pnpm build
 ```
-
-## 使用方法
-
-```tsx
-import { Outliner } from './components/Outliner';
-
-const initialData = [
-  {
-    topic: '根节点',
-    children: [
-      {
-        topic: '子节点1',
-        children: [
-          {
-            topic: '子节点1.1'
-          }
-        ]
-      }
-    ]
-  }
-];
-
-function App() {
-  const handleChange = (data) => {
-    console.log('大纲数据已更新:', data);
-  };
-
-  return (
-    <Outliner
-      data={initialData}
-      onChange={handleChange}
-    />
-  );
-}
-```
-
-## 技术栈
-
-- React 18
-- TypeScript
-- Vite
-- TailwindCSS
-- Lucide React (图标库)
 
 ## 开发环境要求
 
