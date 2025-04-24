@@ -15,6 +15,7 @@ export interface OutlineData  {
 export interface OutlinerProps {
   data: OutlineData[];
   onChange?: (data: OutlineItemType[]) => void;
+  readonly?: boolean;
 }
 
 function generateId() {
@@ -28,7 +29,7 @@ function addChildren(input: OutlineData):OutlineItemType{
   }
 }
 
-export function Outliner({ data, onChange }: OutlinerProps) {
+export function Outliner({ data, onChange,readonly }: OutlinerProps) {
   const [items, setItems] = useState<OutlineItemType[]>(
     data.map(addChildren)
   );
@@ -240,6 +241,7 @@ export function Outliner({ data, onChange }: OutlinerProps) {
             onOperation={handleOperation}
             focusId={focusId}
             onFocusItem={setFocusId}
+            readonly={readonly}
           />
         ))}
       </div>

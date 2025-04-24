@@ -13,6 +13,7 @@ interface Props {
   onOperation: (operation: ItemOperation) => void;
   focusId?: string;
   onFocusItem: (id: string) => void;
+  readonly?: boolean;
 }
 
 // More efficient method to check if an item is a descendant of another using DOM contains
@@ -46,7 +47,8 @@ export function OutlineItem({
   onAddChild,
   onOperation,
   focusId,
-  onFocusItem
+  onFocusItem,
+  readonly
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -325,6 +327,7 @@ export function OutlineItem({
           onOperation={onOperation}
           focusId={focusId}
           onFocusItem={onFocusItem}
+          readonly={readonly}
         />
       ))}
     </div>
