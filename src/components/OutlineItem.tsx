@@ -19,7 +19,9 @@ interface Props {
 // More efficient method to check if an item is a descendant of another using DOM contains
 const isDescendant = (targetId: string, draggedId: string): boolean => {
   // Get DOM elements
-  const draggedElement = document.querySelector(`[data-item-id="${draggedId}"]`);
+  const draggedElement = document.querySelector(
+    `[data-item-id="${draggedId}"]`,
+  );
   const targetElement = document.querySelector(`[data-item-id="${targetId}"]`);
 
   // If either element doesn't exist, return false
@@ -48,7 +50,7 @@ export function OutlineItem({
   onOperation,
   focusId,
   onFocusItem,
-  readonly
+  readonly,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -67,14 +69,14 @@ export function OutlineItem({
   }, [focusId, item.id]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    const topic = contentRef.current?.textContent?.trim()
+    const topic = contentRef.current?.textContent?.trim();
     if (e.key === 'ArrowUp' && e.altKey) {
       e.preventDefault();
       onOperation({
         type: 'moveUp',
         id: item.id,
         parentId,
-        shouldFocusCurrent: true
+        shouldFocusCurrent: true,
       });
     } else if (e.key === 'ArrowDown' && e.altKey) {
       e.preventDefault();
@@ -82,12 +84,14 @@ export function OutlineItem({
         type: 'moveDown',
         id: item.id,
         parentId,
-        shouldFocusCurrent: true
+        shouldFocusCurrent: true,
       });
     } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault();
       const allItems = document.querySelectorAll('[data-outline-item]');
-      const currentIndex = Array.from(allItems).findIndex(el => el === contentRef.current);
+      const currentIndex = Array.from(allItems).findIndex(
+        (el) => el === contentRef.current,
+      );
 
       if (currentIndex === -1) return;
 
@@ -113,7 +117,7 @@ export function OutlineItem({
           type: 'addSiblingBefore',
           id: item.id,
           parentId,
-          shouldFocusNew: true
+          shouldFocusNew: true,
         });
       } else if (topic) {
         // Enter with content: Add sibling after current node
@@ -121,7 +125,7 @@ export function OutlineItem({
           type: 'addSibling',
           id: item.id,
           parentId,
-          shouldFocusNew: true
+          shouldFocusNew: true,
         });
       } else {
         // Enter with empty content: Outdent
@@ -129,7 +133,7 @@ export function OutlineItem({
           type: 'outdent',
           id: item.id,
           parentId,
-          shouldFocusCurrent: true
+          shouldFocusCurrent: true,
         });
       }
     } else if (e.key === 'Tab') {
@@ -140,7 +144,7 @@ export function OutlineItem({
           id: item.id,
           parentId,
           shouldFocusCurrent: true,
-          topic
+          topic,
         });
       } else {
         onOperation({
@@ -148,7 +152,7 @@ export function OutlineItem({
           id: item.id,
           parentId,
           shouldFocusCurrent: true,
-          topic
+          topic,
         });
       }
     } else if (e.key === 'Backspace' && topic === '') {
@@ -166,7 +170,9 @@ export function OutlineItem({
     onUpdate(item.id, { expanded: item.expanded === false ? true : false });
   };
 
-  const [dragState, setDragState] = React.useState<'before' | 'inside' | 'after' | undefined>(undefined);
+  const [dragState, setDragState] = React.useState<
+    'before' | 'inside' | 'after' | undefined
+  >(undefined);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -203,7 +209,6 @@ export function OutlineItem({
     }
 
     e.dataTransfer.dropEffect = 'move';
-
 
     // Get the bounding rectangle of the target element
     const rect = e.currentTarget.getBoundingClientRect();
@@ -242,7 +247,7 @@ export function OutlineItem({
         targetId: item.id,
         parentId,
         dropPosition: dragState,
-        shouldFocusCurrent: true
+        shouldFocusCurrent: true,
       });
     }
 
@@ -250,26 +255,34 @@ export function OutlineItem({
   };
 
   // Determine the CSS classes based on drag state
-  const dragOverClass = dragState === 'before' ? 'drag-over' :
-    dragState === 'after' ? 'drag-over-bottom' :
-      dragState === 'inside' ? 'drag-over-inside' : '';
-
+  const dragOverClass =
+    dragState === 'before'
+      ? 'drag-over'
+      : dragState === 'after'
+      ? 'drag-over-bottom'
+      : dragState === 'inside'
+      ? 'drag-over-inside'
+      : '';
 
   return (
     <div
       ref={containerRef}
-      className={`outline-item-container`} 
-      draggable="true" 
-      onDragStart={handleDragStart} 
-      onDragEnd={handleDragEnd} 
-      onDragLeave={handleDragLeave} >
+      className={`outline-item-container`}
+      style={{
+        pointerEvents: readonly ? 'none' : 'auto',
+      }}
+      draggable="true"
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragLeave={handleDragLeave}
+    >
       {/* Vertical lines for alignment */}
       {level > 0 && (
         <div
           className="outline-item-vertical-line"
           style={{
-            left: `${(level * 24) - 13}px`,
-            height: '100%'
+            left: `${level * 24 - 13}px`,
+            height: '100%',
           }}
         />
       )}
@@ -282,17 +295,22 @@ export function OutlineItem({
       >
         <button
           onClick={toggleCollapse}
-          className={`outline-item-collapse-btn ${item.children.length ? '' : 'hidden'} ${item.expanded === false ? 'collapsed' : 'expanded'}`}
+          className={`outline-item-collapse-btn ${
+            item.children.length ? '' : 'hidden'
+          } ${item.expanded === false ? 'collapsed' : 'expanded'}`}
         >
-          {item.expanded === false ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+          {item.expanded === false ? (
+            <ChevronRight size={14} />
+          ) : (
+            <ChevronDown size={14} />
+          )}
         </button>
 
-        {/* Node dot */}
         <div className="outline-item-dot" />
 
         <div
           ref={contentRef}
-          contentEditable="true"
+          contentEditable={readonly ? false : true}
           onBlur={handleInput}
           onKeyDown={handleKeyDown}
           onClick={() => onFocusItem(item.id)}
@@ -304,32 +322,35 @@ export function OutlineItem({
           {item.topic || ' '}
         </div>
 
-        <div className="outline-item-actions">
-          <button
-            onClick={() => onDelete(item.id, parentId)}
-            className="outline-item-delete-btn"
-            title="Delete"
-          >
-            <Trash size={14} />
-          </button>
-        </div>
+        {!readonly && (
+          <div className="outline-item-actions">
+            <button
+              onClick={() => onDelete(item.id, parentId)}
+              className="outline-item-delete-btn"
+              title="Delete"
+            >
+              <Trash size={14} />
+            </button>
+          </div>
+        )}
       </div>
 
-      {item.expanded !== false && item.children.map((child) => (
-        <OutlineItem
-          key={child.id}
-          item={child}
-          level={level + 1}
-          parentId={item.id}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          onAddChild={onAddChild}
-          onOperation={onOperation}
-          focusId={focusId}
-          onFocusItem={onFocusItem}
-          readonly={readonly}
-        />
-      ))}
+      {item.expanded !== false &&
+        item.children.map((child) => (
+          <OutlineItem
+            key={child.id}
+            item={child}
+            level={level + 1}
+            parentId={item.id}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            onAddChild={onAddChild}
+            onOperation={onOperation}
+            focusId={focusId}
+            onFocusItem={onFocusItem}
+            readonly={readonly}
+          />
+        ))}
     </div>
   );
 }
