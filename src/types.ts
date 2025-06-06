@@ -1,6 +1,19 @@
 export interface OutlineItem {
   id: string;
   topic: string;
+  style?: Partial<{
+    fontSize: string
+    fontFamily: string
+    color: string
+    background: string
+    fontWeight: string
+    width: string
+    border: string
+    textDecoration: string
+    borderRadius: string
+    padding: string
+    fontStyle: string
+  }>
   children: OutlineItem[];
   expanded?: boolean;
 }

@@ -1,7 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Trash } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { ChevronRight, ChevronDown, Trash, Palette } from 'lucide-react';
 import './OutlineItem.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
+import { StyleEditor } from './StyleEditor';
 
 interface Props {
   item: OutlineItemType;
@@ -52,6 +53,7 @@ export function OutlineItem({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [showStyleEditor, setShowStyleEditor] = useState(false);
 
   useEffect(() => {
     if (focusId === item.id && contentRef.current) {
@@ -300,20 +302,34 @@ export function OutlineItem({
           data-outline-item
           data-item-id={item.id}
           suppressContentEditableWarning={true}
+          style={item.style || {}}
         >
           {item.topic || ' '}
         </div>
 
         <div className="outline-item-actions">
           <button
+            onClick={() => setShowStyleEditor(!showStyleEditor)}
+            className="outline-item-style-btn"
+            title="样式"
+          >
+            <Palette size={14} />
+          </button>
+          <button
             onClick={() => onDelete(item.id, parentId)}
             className="outline-item-delete-btn"
-            title="Delete"
+            title="删除"
           >
             <Trash size={14} />
           </button>
         </div>
       </div>
+
+      {showStyleEditor && (
+        <div className="outline-item-style-editor" style={{ marginLeft: `${level * 24 + 24}px` }}>
+          <StyleEditor item={item} onUpdate={onUpdate} />
+        </div>
+      )}
 
       {item.expanded !== false && item.children.map((child) => (
         <OutlineItem

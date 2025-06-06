@@ -116,3 +116,54 @@
 .outline-item-delete-btn:hover {
   background-color: #e5e7eb;
 }
+
+.outline-item-style-btn {
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  margin-right: 4px;
+  color: #666;
+}
+
+.outline-item-style-btn:hover {
+  color: #1a73e8;
+}
+
+.outline-item-wrapper:hover .outline-item-style-btn {
+  opacity: 1;
+}
+
+.outline-item-style-editor {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 为样式编辑器中的输入框添加样式 */
+.style-editor input[type="text"],
+.style-editor select {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.style-editor input[type="color"] {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.style-editor label {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 4px;
+}
