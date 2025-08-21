@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { ChevronRight, ChevronDown, Trash } from 'lucide-react';
 import './OutlineItem.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
+import { mdToHtml } from '../utils/mdToHtml';
 
 interface Props {
   item: OutlineItemType;
@@ -54,9 +55,18 @@ export function OutlineItem({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  
+  // 当不是焦点项时，显示 HTML
+  useEffect(() => {
+    if (focusId !== item.id && contentRef.current && item.topic) {
+      contentRef.current.innerHTML = mdToHtml(item.topic);
+    }
+  }, [focusId, item.id, item.topic]);
 
   useEffect(() => {
     if (focusId === item.id && contentRef.current) {
+      // 获得焦点时显示原始 Markdown 文本
+      contentRef.current.textContent = item.topic;
       contentRef.current.focus();
       // Move cursor to the end of topic
       const range = document.createRange();
@@ -66,7 +76,7 @@ export function OutlineItem({
       selection?.removeAllRanges();
       selection?.addRange(range);
     }
-  }, [focusId, item.id]);
+  }, [focusId, item.id, item.topic]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const topic = contentRef.current?.textContent?.trim();
@@ -162,8 +172,18 @@ export function OutlineItem({
   };
 
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const topic = e.currentTarget.textContent || '';
-    onUpdate(item.id, { topic });
+    const markdownText = e.currentTarget.textContent || '';
+    
+    // 保存原始的 Markdown 文本
+    onUpdate(item.id, { topic: markdownText });
+    
+    // 如果不是编辑状态，将 Markdown 转换为 HTML 并显示
+    if (focusId !== item.id) {
+      const htmlContent = mdToHtml(markdownText);
+      if (contentRef.current) {
+        contentRef.current.innerHTML = htmlContent;
+      }
+    }
   };
 
   const toggleCollapse = () => {
