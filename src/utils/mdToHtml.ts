@@ -8,8 +8,10 @@ export function mdToHtml(markdown: string): string {
   let html = markdown;
   
   // 转换标题 (h1-h6)
-  html = html.replace(/^#{1,6}\s+(.+)$/gm, (match, content) => {
-    const level = match.trim().indexOf(' ');
+  // 使用更精确的正则表达式匹配标题
+  html = html.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content) => {
+    const level = hashes.length;
+    console.log(`匹配到标题: 级别=${level}, 内容=${content}`);
     return `<h${level}>${content}</h${level}>`;
   });
   

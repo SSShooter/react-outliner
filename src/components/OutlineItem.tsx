@@ -55,13 +55,6 @@ export function OutlineItem({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  
-  // 当不是焦点项时，显示 HTML
-  useEffect(() => {
-    if (focusId !== item.id && contentRef.current && item.topic) {
-      contentRef.current.innerHTML = mdToHtml(item.topic);
-    }
-  }, [focusId, item.id, item.topic]);
 
   useEffect(() => {
     if (focusId === item.id && contentRef.current) {
@@ -171,19 +164,14 @@ export function OutlineItem({
     }
   };
 
-  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+  const handleBlur = (e: React.FormEvent<HTMLDivElement>) => {
     const markdownText = e.currentTarget.textContent || '';
-    
+    const htmlContent = mdToHtml(markdownText);
+    if (contentRef.current) {
+      contentRef.current.innerHTML = htmlContent;
+    }
     // 保存原始的 Markdown 文本
     onUpdate(item.id, { topic: markdownText });
-    
-    // 如果不是编辑状态，将 Markdown 转换为 HTML 并显示
-    if (focusId !== item.id) {
-      const htmlContent = mdToHtml(markdownText);
-      if (contentRef.current) {
-        contentRef.current.innerHTML = htmlContent;
-      }
-    }
   };
 
   const toggleCollapse = () => {
@@ -331,7 +319,7 @@ export function OutlineItem({
         <div
           ref={contentRef}
           contentEditable={readonly ? false : true}
-          onBlur={handleInput}
+          onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           onClick={() => onFocusItem(item.id)}
           className="outline-item-topic"

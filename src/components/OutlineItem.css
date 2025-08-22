@@ -98,6 +98,50 @@
   outline: none;
 }
 
+/* Markdown 标题样式 */
+.outline-item-topic h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+  color: #111827;
+}
+
+.outline-item-topic h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.4rem 0;
+  color: #1f2937;
+}
+
+.outline-item-topic h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0.3rem 0;
+  color: #374151;
+}
+
+.outline-item-topic h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.2rem 0;
+  color: #4b5563;
+}
+
+.outline-item-topic h5 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0.1rem 0;
+  color: #6b7280;
+}
+
+.outline-item-topic h6 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0.1rem 0;
+  color: #6b7280;
+  font-style: italic;
+}
+
 .outline-item-actions {
   display: flex;
   gap: 0.25rem;

@@ -46,7 +46,6 @@ function App() {
           React Outliner Neo
         </h1>
         <Outliner
-          readonly
           data={data}
           onChange={(data) => {
             console.log(data)
