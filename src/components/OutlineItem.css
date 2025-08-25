@@ -2,8 +2,17 @@
   position: relative;
 }
 
+.outline-item-container[draggable="true"]:not([style*="pointer-events: none"]) {
+  cursor: grab;
+}
+
+.outline-item-container[draggable="true"]:not([style*="pointer-events: none"]):active {
+  cursor: grabbing;
+}
+
 .outline-item-container.dragging {
   opacity: 0.5;
+  cursor: grabbing;
 }
 
 .outline-item-wrapper.drag-over {
@@ -90,6 +99,15 @@
   flex-shrink: 0;
 }
 
+/* 只有在非只读模式下才显示拖拽样式 */
+.outline-item-wrapper:not([style*="pointer-events: none"]) .outline-item-dot {
+  cursor: grab;
+}
+
+.outline-item-wrapper:not([style*="pointer-events: none"]) .outline-item-dot:active {
+  cursor: grabbing;
+}
+
 .outline-item-topic {
   flex: 1;
   cursor: text;
@@ -158,6 +176,12 @@
   color: #dc2626;
 }
 
-.outline-item-delete-btn:hover {
+.outline-item-delete-btn:hover:not(:disabled) {
   background-color: #e5e7eb;
+}
+
+.outline-item-delete-btn:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.5;
 }

@@ -33,7 +33,6 @@ export function Outliner({ data, onChange,readonly }: OutlinerProps) {
   const [items, setItems] = useState<OutlineItemType[]>(
     data.map(addChildren)
   );
-  const [focusId, setFocusId] = useState<string | undefined>();
 
   // Notify parent component when items change
   const handleItemsChange = useCallback((newItems: OutlineItemType[]) => {
@@ -66,48 +65,47 @@ export function Outliner({ data, onChange,readonly }: OutlinerProps) {
     handleItemsChange(updateItemInTree(items));
   };
 
-  const deleteItem = (id: string, parentId?: string) => {
-    let nextFocusId: string | undefined;
-
-    // Helper function to find the last visible child of an item
-    const findLastVisibleChild = (item: OutlineItemType): string => {
-      if (!item.children.length || item.expanded === false) {
-        return item.id;
+  // 抽象的focus函数，用于在下一个渲染周期中聚焦指定元素
+  const focusElement = (itemId: string, delay: number = 0) => {
+    setTimeout(() => {
+      const element = document.querySelector(`[data-item-id="${itemId}"]`) as HTMLElement;
+      if (element) {
+        element.focus();
       }
-      return findLastVisibleChild(item.children[item.children.length - 1]);
-    };
+    }, delay);
+  };
+
+  const deleteItem = (id: string, parentId?: string) => {
+
+    // 在删除前找到下一个应该获得焦点的元素
+    const currentElement = document.querySelector(`[data-item-id="${id}"]`) as HTMLElement;
+    let nextFocusElement: HTMLElement | null = null;
+
+    if (currentElement) {
+      // 尝试找到前一个兄弟节点的最后一个可见子节点
+      const allItems = document.querySelectorAll('[data-outline-item]');
+      const currentIndex = Array.from(allItems).findIndex(el => el === currentElement);
+
+      if (currentIndex > 0) {
+        nextFocusElement = allItems[currentIndex - 1] as HTMLElement;
+      } else if (parentId) {
+        // 如果没有前一个兄弟节点，则聚焦到父节点
+        nextFocusElement = document.querySelector(`[data-item-id="${parentId}"]`) as HTMLElement;
+      }
+    }
 
     const deleteItemFromTree = (items: OutlineItemType[]): OutlineItemType[] => {
-      // Handle root level items
-      if (!parentId) {
-        const currentIndex = items.findIndex(item => item.id === id);
-        if (currentIndex !== -1) {
-          // Set focus to previous sibling's last visible child if exists
-          if (currentIndex > 0) {
-            const prevItem = items[currentIndex - 1];
-            nextFocusId = findLastVisibleChild(prevItem);
-          }
-        }
-      }
-
       return items.map(item => {
-        // If this is the parent item, handle the deletion and set focus
+        // If this is the parent item, handle the deletion
         if (item.id === parentId) {
           const currentIndex = item.children.findIndex(child => child.id === id);
           if (currentIndex !== -1) {
             const newChildren = [...item.children];
             newChildren.splice(currentIndex, 1);
-            // Set focus to previous sibling's last visible child if exists, otherwise to parent
-            if (currentIndex > 0) {
-              const prevItem = item.children[currentIndex - 1];
-              nextFocusId = findLastVisibleChild(prevItem);
-            } else {
-              nextFocusId = item.id;
-            }
             return { ...item, children: newChildren };
           }
         }
-        
+
         // Continue searching in children
         if (item.children.length) {
           return {
@@ -121,10 +119,13 @@ export function Outliner({ data, onChange,readonly }: OutlinerProps) {
 
     const newItems = deleteItemFromTree(items);
     handleItemsChange(newItems);
-    
-    // Set the focus after state update
-    if (nextFocusId) {
-      setFocusId(nextFocusId);
+
+    // 在下一个渲染周期中设置焦点
+    if (nextFocusElement) {
+      const itemId = nextFocusElement.getAttribute('data-item-id');
+      if (itemId) {
+        focusElement(itemId);
+      }
     }
   };
 
@@ -154,7 +155,9 @@ export function Outliner({ data, onChange,readonly }: OutlinerProps) {
     };
 
     handleItemsChange(addChildToItem(items));
-    setFocusId(newItem.id);
+
+    // 在下一个渲染周期中聚焦新创建的子项
+    focusElement(newItem.id);
   };
 
   const handleOperation = (operation: ItemOperation) => {
@@ -167,9 +170,9 @@ export function Outliner({ data, onChange,readonly }: OutlinerProps) {
 
       const newItems = addSiblingOperation(items, operation.id, operation.parentId, newItem);
       handleItemsChange(newItems);
-      
+
       if (operation.shouldFocusNew) {
-        setFocusId(newItem.id);
+        focusElement(newItem.id);
       }
     } else if (operation.type === 'addSiblingBefore') {
       const newItem = {
@@ -180,48 +183,48 @@ export function Outliner({ data, onChange,readonly }: OutlinerProps) {
 
       const newItems = addSiblingBeforeOperation(items, operation.id, operation.parentId, newItem);
       handleItemsChange(newItems);
-      
+
       if (operation.shouldFocusNew) {
-        setFocusId(newItem.id);
+        focusElement(newItem.id);
       }
     } else if (operation.type === 'indent') {
       const newItems = indentOperation(items, operation.id, operation.parentId, operation.topic);
       handleItemsChange(newItems);
-      
+
       if (operation.shouldFocusCurrent) {
-        setFocusId(operation.id);
+        focusElement(operation.id);
       }
     } else if (operation.type === 'outdent') {
       if (!operation.parentId) return;
 
       const newItems = outdentOperation(items, operation.id, operation.parentId, operation.topic);
       handleItemsChange(newItems);
-      
+
       if (operation.shouldFocusCurrent) {
-        setFocusId(operation.id);
+        focusElement(operation.id);
       }
     } else if (operation.type === 'moveUp') {
       const newItems = moveUpOperation(items, operation.id, operation.parentId);
       handleItemsChange(newItems);
-      
+
       if (operation.shouldFocusCurrent) {
-        setFocusId(operation.id);
+        focusElement(operation.id);
       }
     } else if (operation.type === 'moveDown') {
       const newItems = moveDownOperation(items, operation.id, operation.parentId);
       handleItemsChange(newItems);
-      
+
       if (operation.shouldFocusCurrent) {
-        setFocusId(operation.id);
+        focusElement(operation.id);
       }
     } else if (operation.type === 'moveTo') {
       if (operation.draggedId && operation.targetId && operation.dropPosition) {
         const dropPosition = operation.dropPosition;
         const newItems = moveToOperation(items, operation.draggedId, operation.targetId, dropPosition);
         handleItemsChange(newItems);
-        
+
         if (operation.shouldFocusCurrent) {
-          setFocusId(operation.draggedId);
+          focusElement(operation.draggedId);
         }
       }
     }
@@ -239,8 +242,6 @@ export function Outliner({ data, onChange,readonly }: OutlinerProps) {
             onDelete={deleteItem}
             onAddChild={addChild}
             onOperation={handleOperation}
-            focusId={focusId}
-            onFocusItem={setFocusId}
             readonly={readonly}
           />
         ))}

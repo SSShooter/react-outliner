@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Outliner } from './components/Outliner'
-import type { OutlineItem as OutlineItemType } from './types'
+import { useState } from 'react';
+import { Outliner } from './components/Outliner';
+import type { OutlineItem as OutlineItemType } from './types';
 
 const example = [
   {
@@ -9,19 +9,19 @@ const example = [
     children: [
       {
         id: '1-1',
-        topic: '前期准备',
+        topic: '# 前期准备',
         children: [
-          { id: '1-1-1', topic: '需求分析', children: [] },
-          { id: '1-1-2', topic: '技术选型', children: [] },
+          { id: '1-1-1', topic: '## 需求分析', children: [] },
+          { id: '1-1-2', topic: '**技术**选型', children: [] },
         ],
       },
       {
         id: '1-2',
         topic: '开发阶段',
         children: [
-          { id: '1-2-1', topic: '后端开发', children: [] },
-          { id: '1-2-2', topic: '前端开发', children: [] },
-          { id: '1-2-3', topic: '单元测试', children: [] },
+          { id: '1-2-1', topic: '### 后端开发', children: [] },
+          { id: '1-2-2', topic: '### 前端开发', children: [] },
+          { id: '1-2-3', topic: '### 单元测试', children: [] },
         ],
       },
       {
@@ -34,10 +34,10 @@ const example = [
       },
     ],
   },
-]
+];
 
 function App() {
-  const [data, setData] = useState<OutlineItemType[]>(example)
+  const [data, setData] = useState<OutlineItemType[]>(example);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -46,15 +46,16 @@ function App() {
           React Outliner Neo
         </h1>
         <Outliner
+          // readonly
           data={data}
           onChange={(data) => {
-            console.log(data)
-            setData(data)
+            console.log(data);
+            setData(data);
           }}
         />
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

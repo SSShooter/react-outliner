@@ -12,8 +12,6 @@ interface Props {
   onDelete: (id: string, parentId?: string) => void;
   onAddChild: (parentId: string) => void;
   onOperation: (operation: ItemOperation) => void;
-  focusId?: string;
-  onFocusItem: (id: string) => void;
   readonly?: boolean;
 }
 
@@ -49,18 +47,24 @@ export function OutlineItem({
   onDelete,
   onAddChild,
   onOperation,
-  focusId,
-  onFocusItem,
   readonly,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const isEditingRef = useRef(false);
 
+  // 确保组件初始化时显示HTML内容
   useEffect(() => {
-    if (focusId === item.id && contentRef.current) {
+    if (contentRef.current && !isEditingRef.current) {
+      contentRef.current.innerHTML = mdToHtml(item.topic);
+    }
+  }, [item.topic]);
+
+  const handleFocus = () => {
+    if (contentRef.current) {
       // 获得焦点时显示原始 Markdown 文本
       contentRef.current.textContent = item.topic;
-      contentRef.current.focus();
+      isEditingRef.current = true;
       // Move cursor to the end of topic
       const range = document.createRange();
       const selection = window.getSelection();
@@ -69,7 +73,7 @@ export function OutlineItem({
       selection?.removeAllRanges();
       selection?.addRange(range);
     }
-  }, [focusId, item.id, item.topic]);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const topic = contentRef.current?.textContent?.trim();
@@ -107,10 +111,12 @@ export function OutlineItem({
 
       if (nextIndex >= 0 && nextIndex < allItems.length) {
         const nextItem = allItems[nextIndex] as HTMLElement;
-        const itemId = nextItem.getAttribute('data-item-id');
-        if (itemId) {
-          onFocusItem(itemId);
+        // 先触发当前元素的blur事件保存内容
+        if (contentRef.current) {
+          contentRef.current.blur();
         }
+        // 然后聚焦到下一个元素，这会自动触发其onFocus事件
+        nextItem.focus();
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
@@ -158,20 +164,25 @@ export function OutlineItem({
           topic,
         });
       }
-    } else if (e.key === 'Backspace' && topic === '') {
+    } else if (e.key === 'Backspace' && topic === '' && level > 0) {
       e.preventDefault();
       onDelete(item.id, parentId);
     }
   };
 
   const handleBlur = (e: React.FormEvent<HTMLDivElement>) => {
-    const markdownText = e.currentTarget.textContent || '';
-    const htmlContent = mdToHtml(markdownText);
-    if (contentRef.current) {
-      contentRef.current.innerHTML = htmlContent;
+    if (isEditingRef.current) {
+      const markdownText = e.currentTarget.textContent || '';
+      onUpdate(item.id, { topic: markdownText });
+      isEditingRef.current = false;
+
+      // 失去焦点后恢复HTML显示
+      setTimeout(() => {
+        if (contentRef.current && !document.activeElement?.closest('[data-item-id="' + item.id + '"]')) {
+          contentRef.current.innerHTML = mdToHtml(markdownText);
+        }
+      }, 0);
     }
-    // 保存原始的 Markdown 文本
-    onUpdate(item.id, { topic: markdownText });
   };
 
   const toggleCollapse = () => {
@@ -314,23 +325,22 @@ export function OutlineItem({
           )}
         </button>
 
-        <div className="outline-item-dot" />
+        <div className="outline-item-dot" title={readonly ? undefined : "拖拽移动"} />
 
         <div
           ref={contentRef}
           contentEditable={readonly ? false : true}
           onBlur={handleBlur}
+          onFocus={handleFocus}
           onKeyDown={handleKeyDown}
-          onClick={() => onFocusItem(item.id)}
           className="outline-item-topic"
           data-outline-item
           data-item-id={item.id}
           suppressContentEditableWarning={true}
         >
-          {item.topic || ' '}
         </div>
 
-        {!readonly && (
+        {!readonly && level > 0 && (
           <div className="outline-item-actions">
             <button
               onClick={() => onDelete(item.id, parentId)}
@@ -354,8 +364,6 @@ export function OutlineItem({
             onDelete={onDelete}
             onAddChild={onAddChild}
             onOperation={onOperation}
-            focusId={focusId}
-            onFocusItem={onFocusItem}
             readonly={readonly}
           />
         ))}
