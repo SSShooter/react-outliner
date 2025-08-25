@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { OutlineItem } from './OutlineItem';
-import './Outliner.css';
+import './OutlineItem.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 import { addSiblingOperation, addSiblingBeforeOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 import { moveToOperation } from '../utils/moveToOperation';
