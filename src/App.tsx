@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outliner } from './components/Outliner';
 import type { OutlineItem as OutlineItemType } from './types';
+import { marked } from 'marked';
 
 const example = [
   {
@@ -52,6 +53,7 @@ function App() {
             console.log(data);
             setData(data);
           }}
+          markdown={(text) => marked.parse(text, { async: false }) as string}
         />
       </div>
     </div>

@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { ChevronRight, ChevronDown, Trash } from 'lucide-react';
 import './OutlineItem.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
-import { mdToHtml } from '../utils/mdToHtml';
+import { globalRef } from '../utils/globalRef';
 
 interface Props {
   item: OutlineItemType;
@@ -56,7 +56,10 @@ export function OutlineItem({
   // 确保组件初始化时显示HTML内容
   useEffect(() => {
     if (contentRef.current && !isEditingRef.current) {
-      contentRef.current.innerHTML = mdToHtml(item.topic);
+      const htmlContent = globalRef.markdown
+        ? globalRef.markdown(item.topic)
+        : item.topic;
+      contentRef.current.innerHTML = htmlContent;
     }
   }, [item.topic]);
 
@@ -177,11 +180,12 @@ export function OutlineItem({
       isEditingRef.current = false;
 
       // 失去焦点后恢复HTML显示
-      setTimeout(() => {
-        if (contentRef.current && !document.activeElement?.closest('[data-item-id="' + item.id + '"]')) {
-          contentRef.current.innerHTML = mdToHtml(markdownText);
-        }
-      }, 0);
+      if (contentRef.current) {
+        const htmlContent = globalRef.markdown
+          ? globalRef.markdown(markdownText)
+          : markdownText;
+        contentRef.current.innerHTML = htmlContent;
+      }
     }
   };
 
@@ -325,7 +329,10 @@ export function OutlineItem({
           )}
         </button>
 
-        <div className="outline-item-dot" title={readonly ? undefined : "拖拽移动"} />
+        <div
+          className="outline-item-dot"
+          title={readonly ? undefined : '拖拽移动'}
+        />
 
         <div
           ref={contentRef}
@@ -337,8 +344,7 @@ export function OutlineItem({
           data-outline-item
           data-item-id={item.id}
           suppressContentEditableWarning={true}
-        >
-        </div>
+        />
 
         {!readonly && level > 0 && (
           <div className="outline-item-actions">

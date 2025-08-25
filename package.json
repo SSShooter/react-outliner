@@ -28,6 +28,7 @@
     "globals": "^15.9.0",
     "jsdom": "^26.0.0",
     "lucide-react": "^0.488.0",
+    "marked": "^16.2.0",
     "postcss": "^8.4.35",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

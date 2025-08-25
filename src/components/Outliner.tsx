@@ -4,6 +4,7 @@ import './Outliner.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 import { addSiblingOperation, addSiblingBeforeOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 import { moveToOperation } from '../utils/moveToOperation';
+import { globalRef } from '../utils/globalRef';
 
 export interface OutlineData  {
   id: string;
@@ -16,6 +17,7 @@ export interface OutlinerProps {
   data: OutlineData[];
   onChange?: (data: OutlineItemType[]) => void;
   readonly?: boolean;
+  markdown?: (text:string) => string;
 }
 
 function generateId() {
@@ -29,7 +31,8 @@ function addChildren(input: OutlineData):OutlineItemType{
   }
 }
 
-export function Outliner({ data, onChange,readonly }: OutlinerProps) {
+export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
+  globalRef.markdown = markdown;
   const [items, setItems] = useState<OutlineItemType[]>(
     data.map(addChildren)
   );
