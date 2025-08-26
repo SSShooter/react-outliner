@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outliner } from './components/Outliner';
 import type { OutlineItem as OutlineItemType } from './types';
 import { marked } from 'marked';
+import { md2html } from './md2html'
 
 const example = [
   {
@@ -60,23 +61,20 @@ function App() {
   }, [isDarkMode]);
 
   return (
-    <div className={`min-h-screen transition-colors duration-200 ${
-      isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'
-    }`}>
+    <div className={`min-h-screen transition-colors duration-200 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'
+      }`}>
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className={`text-2xl font-semibold ${
-            isDarkMode ? 'text-white' : 'text-gray-800'
-          }`}>
+          <h1 className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'
+            }`}>
             React Outliner Neo
           </h1>
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className={`p-2 rounded-lg transition-colors duration-200 ${
-              isDarkMode 
-                ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400' 
+            className={`p-2 rounded-lg transition-colors duration-200 ${isDarkMode
+                ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400'
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-            }`}
+              }`}
             title={isDarkMode ? '切换到浅色模式' : '切换到暗黑模式'}
           >
             {isDarkMode ? (
@@ -97,7 +95,8 @@ function App() {
             console.log(data);
             setData(data);
           }}
-          markdown={(text) => marked.parse(text, { async: false }) as string}
+          // markdown={(text) => marked.parse(text, { async: false }) as string}
+          markdown={md2html}
         />
       </div>
     </div>
