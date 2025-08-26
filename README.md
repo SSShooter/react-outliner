@@ -1,39 +1,44 @@
 # React Outliner Neo
 
-一个基于 React 和 TypeScript 开发的大纲编辑器组件，支持层级结构的内容组织和丰富的快捷键操作。
+A React and TypeScript-based outline editor component that supports hierarchical content organization with rich keyboard shortcuts.
 
-## 功能特点
+## Features
 
-- 丰富的键盘快捷操作
-  - Enter: 创建新的同级条目
-  - Tab: 缩进条目（增加层级）
-  - Shift + Tab: 减少缩进（减少层级）
-  - Alt + ↑: 向上移动条目
-  - Alt + ↓: 向下移动条目
-  - ↑/↓: 在条目间快速导航
-- 支持条目的展开/折叠
-- 支持条目的删除操作
+- Rich keyboard shortcuts
+  - Enter: Create new sibling item
+  - Tab: Indent item (increase level)
+  - Shift + Tab: Outdent item (decrease level)
+  - Alt + ↑: Move item up
+  - Alt + ↓: Move item down
+  - ↑/↓: Quick navigation between items
+- Support for expanding/collapsing items
+- Support for deleting items
+- **Dark mode support** - Built-in CSS variables for seamless theme switching
+- **Markdown rendering** - Optional markdown support for rich text formatting
+- **Drag and drop** - Intuitive item reordering with visual feedback
+- **Read-only mode** - Display-only mode for viewing outlines
 
-## 安装
+## Installation
 
 ```bash
 pnpm i react-outliner-neo
 ```
 
-## 使用方法
+## Usage
 
 ```tsx
 import { Outliner } from "react-outliner-neo";
+import { marked } from "marked";
 
 const initialData = [
   {
-    topic: "根节点",
+    topic: "Root Node",
     children: [
       {
-        topic: "子节点1",
+        topic: "**Bold text** and *italic text*",
         children: [
           {
-            topic: "子节点1.1",
+            topic: "Child Node 1.1",
           },
         ],
       },
@@ -43,34 +48,105 @@ const initialData = [
 
 function App() {
   const handleChange = (data) => {
-    console.log("大纲数据已更新:", data);
+    console.log("Outline data updated:", data);
   };
 
-  return <Outliner data={initialData} onChange={handleChange} />;
+  // Optional: Enable markdown rendering
+  const markdownRenderer = (text: string) => {
+    return marked.parseInline(text);
+  };
+
+  return (
+    <div className="dark"> {/* Add 'dark' class for dark mode */}
+      <Outliner 
+        data={initialData} 
+        onChange={handleChange}
+        markdown={markdownRenderer} // Enable markdown rendering
+        readonly={false} // Set to true for read-only mode
+      />
+    </div>
+  );
 }
 ```
 
-## 技术栈
+## API Reference
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `OutlineData[]` | Required | Initial outline data |
+| `onChange` | `(data: OutlineItem[]) => void` | Optional | Callback when outline changes |
+| `readonly` | `boolean` | `false` | Enable read-only mode |
+| `markdown` | `(text: string) => string` | Optional | Markdown renderer function |
+
+### Data Structure
+
+```tsx
+interface OutlineData {
+  id?: string; // Auto-generated if not provided
+  topic: string;
+  children?: OutlineData[];
+  expanded?: boolean; // Default: true
+}
+```
+
+## Styling & Theming
+
+### Dark Mode
+
+Add the `dark` class to any parent element to enable dark mode:
+
+```tsx
+<div className="dark">
+  <Outliner data={data} />
+</div>
+```
+
+### Custom Styling
+
+Import the CSS file and customize CSS variables:
+
+```tsx
+import "react-outliner-neo/style.css";
+```
+
+```css
+:root {
+  --primary-color: #3b35ab;
+  --text-color: #1f2937;
+  --bg-color: transparent;
+  /* ... other variables */
+}
+
+.dark {
+  --primary-color: #6b9ff3;
+  --text-color: #f9fafb;
+  /* ... dark mode variables */
+}
+```
+
+## Tech Stack
 
 - React 18
 - TypeScript
 - Vite
 - TailwindCSS
-- Lucide React (图标库)
+- Lucide React (Icon library)
 
-## 开发
+## Development
 
 ```bash
 pnpm dev
 ```
 
-## 构建
+## Build
 
 ```bash
 pnpm build
 ```
 
-## 开发环境要求
+## Development Requirements
 
 - Node.js >= 18
 - pnpm >= 8
