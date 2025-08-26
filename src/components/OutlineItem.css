@@ -1,12 +1,11 @@
 :root {
   /* 主题色变量 - 重新设计颜色分配 */
   --primary-color: #3b35ab;
-  --collapse-btn-color: rgba(79, 70, 229, 0.08);
   --danger-color: #ef4444;
   --header-color: #433f96;
   --text-disabled: #9ca3af;
   --border-light: #f3f4f6;
-  --drag-indicator: #8275c8;
+  --drag-indicator: #e1dcff;
   --text-color: #1f2937; /* 普通文字颜色 */
   --bg-color: transparent; /* 背景颜色 */
   --drag-indicator-10: color-mix(
@@ -24,7 +23,6 @@
 .dark {
   /* 暗黑模式颜色变量 */
   --primary-color: #6b9ff3;
-  --collapse-btn-color: rgba(59, 130, 246, 0.15);
   --danger-color: #f87171;
   --header-color: #2563eb;
   --text-disabled: #6b7280;
@@ -137,16 +135,13 @@
   transition: background-color 0.2s;
 }
 
-.outline-item-collapse-btn:hover {
-  background-color: var(--collapse-btn-color);
-  color: var(--primary-color);
-}
 
 .outline-item-collapse-btn.hidden {
   visibility: hidden;
 }
 
-.outline-item-collapse-btn.collapsed {
+.outline-item-collapse-btn.collapsed,.outline-item-collapse-btn:hover {
+  background-color: var(--drag-indicator);
   opacity: 1;
 }
 
