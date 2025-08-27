@@ -1,43 +1,43 @@
 :root {
   /* 主题色变量 - 重新设计颜色分配 */
-  --primary-color: #3b35ab;
-  --danger-color: #ef4444;
-  --header-color: #433f96;
-  --text-disabled: #9ca3af;
-  --border-light: #f3f4f6;
-  --drag-indicator: #e1dcff;
-  --text-color: #1f2937; /* 普通文字颜色 */
-  --bg-color: transparent; /* 背景颜色 */
-  --drag-indicator-10: color-mix(
+  --rol-primary-color: #3b35ab;
+  --rol-danger-color: #ef4444;
+  --rol-header-color: #433f96;
+  --rol-text-disabled: #9ca3af;
+  --rol-border-light: #f3f4f6;
+  --rol-drag-indicator: #e1dcff;
+  --rol-text-color: #1f2937; /* 普通文字颜色 */
+  --rol-bg-color: transparent; /* 背景颜色 */
+  --rol-drag-indicator-10: color-mix(
     in srgb,
-    var(--drag-indicator) 10%,
+    var(--rol-drag-indicator) 10%,
     transparent
   );
-  --drag-indicator-30: color-mix(
+  --rol-drag-indicator-30: color-mix(
     in srgb,
-    var(--drag-indicator) 30%,
+    var(--rol-drag-indicator) 30%,
     transparent
   );
 }
 
 .dark {
   /* 暗黑模式颜色变量 */
-  --primary-color: #6b9ff3;
-  --danger-color: #f87171;
-  --header-color: #2563eb;
-  --text-disabled: #6b7280;
-  --border-light: #374151;
-  --drag-indicator: #2563eb;
-  --text-color: #f9fafb; /* 暗黑模式普通文字颜色 */
-  --bg-color: transparent; /* 暗黑模式背景颜色 */
-  --drag-indicator-10: color-mix(
+  --rol-primary-color: #6b9ff3;
+  --rol-danger-color: #f87171;
+  --rol-header-color: #2563eb;
+  --rol-text-disabled: #6b7280;
+  --rol-border-light: #374151;
+  --rol-drag-indicator: #2563eb;
+  --rol-text-color: #f9fafb; /* 暗黑模式普通文字颜色 */
+  --rol-bg-color: transparent; /* 暗黑模式背景颜色 */
+  --rol-drag-indicator-10: color-mix(
     in srgb,
-    var(--drag-indicator) 10%,
+    var(--rol-drag-indicator) 10%,
     transparent
   );
-  --drag-indicator-30: color-mix(
+  --rol-drag-indicator-30: color-mix(
     in srgb,
-    var(--drag-indicator) 30%,
+    var(--rol-drag-indicator) 30%,
     transparent
   );
 }
@@ -45,8 +45,8 @@
 /* Outliner 容器样式 */
 .outliner-container {
   padding: 1.5rem;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: var(--rol-bg-color);
+  color: var(--rol-text-color);
 }
 
 .outliner-items {
@@ -84,7 +84,7 @@
   right: 0;
   top: 0;
   height: 2px;
-  background-color: var(--drag-indicator);
+  background-color: var(--rol-drag-indicator);
   z-index: 10;
 }
 
@@ -95,13 +95,13 @@
   right: 0;
   bottom: 0;
   height: 2px;
-  background-color: var(--drag-indicator);
+  background-color: var(--rol-drag-indicator);
   z-index: 10;
 }
 
 .outline-item-wrapper.drag-over-inside {
-  background-color: var(--drag-indicator-10);
-  box-shadow: 0 0 0 2px var(--drag-indicator-30);
+  background-color: var(--rol-drag-indicator-10);
+  box-shadow: 0 0 0 2px var(--rol-drag-indicator-30);
 }
 
 .outline-item-vertical-line {
@@ -109,7 +109,7 @@
   left: 0;
   top: 0;
   bottom: 0;
-  border-left: 2px solid var(--border-light);
+  border-left: 2px solid var(--rol-border-light);
 }
 
 .outline-item-wrapper {
@@ -141,7 +141,7 @@
 }
 
 .outline-item-collapse-btn.collapsed,.outline-item-collapse-btn:hover {
-  background-color: var(--drag-indicator);
+  background-color: var(--rol-drag-indicator);
   opacity: 1;
 }
 
@@ -156,7 +156,7 @@
 .outline-item-dot {
   width: 0.4rem;
   height: 0.4rem;
-  background-color: var(--primary-color);
+  background-color: var(--rol-primary-color);
   border-radius: 9999px;
   flex-shrink: 0;
   position: relative;
@@ -185,53 +185,53 @@
 .outline-item-topic h1 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--header-color);
+  color: var(--rol-header-color);
 }
 
 .outline-item-topic h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--header-color);
+  color: var(--rol-header-color);
 }
 
 .outline-item-topic h3 {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--header-color);
+  color: var(--rol-header-color);
 }
 
 .outline-item-topic h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--header-color);
+  color: var(--rol-header-color);
 }
 
 .outline-item-topic h5 {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--header-color);
+  color: var(--rol-header-color);
 }
 
 .outline-item-topic h6 {
   font-size: 0.875rem;
   font-weight: 500;
   margin: 0.1rem 0;
-  color: var(--header-color);
+  color: var(--rol-header-color);
   font-style: italic;
 }
 
 .outline-item-topic strong,
 .outline-item-topic em {
-  color: var(--primary-color);
+  color: var(--rol-primary-color);
 }
 
 .outline-item-topic a {
-  color: var(--primary-color);
+  color: var(--rol-primary-color);
   text-decoration: none;
 }
 
 .outline-item-topic a:hover {
-  color: var(--primary-color);
+  color: var(--rol-primary-color);
   text-decoration: underline;
 }
 
@@ -248,15 +248,15 @@
 .outline-item-delete-btn {
   padding: 0.25rem;
   border-radius: 0.25rem;
-  color: var(--danger-color);
+  color: var(--rol-danger-color);
 }
 
 .outline-item-delete-btn:hover:not(:disabled) {
-  background-color: var(--border-light);
+  background-color: var(--rol-border-light);
 }
 
 .outline-item-delete-btn:disabled {
-  color: var(--text-disabled);
+  color: var(--rol-text-disabled);
   cursor: not-allowed;
   opacity: 0.5;
 }
