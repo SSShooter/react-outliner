@@ -9,7 +9,8 @@ interface Props {
   items: OutlineItemType[];
   level: number;
   parentId?: string;
-  onUpdate: (id: string, update: Partial<OutlineItemType>) => void;
+  onUpdate: (id: string, update: Partial<OutlineItemType>, shouldSaveHistory?: boolean) => void;
+  onFinishEditing?: (id: string, update: Partial<OutlineItemType>) => void;
   onDelete: (id: string, parentId?: string) => void;
   onAddChild: (parentId: string) => void;
   onOperation: (operation: ItemOperation) => void;
@@ -46,6 +47,7 @@ export function OutlineItem({
   level,
   parentId,
   onUpdate,
+  onFinishEditing,
   onDelete,
   onAddChild,
   onOperation,
@@ -179,7 +181,14 @@ export function OutlineItem({
   const handleBlur = (e: React.FormEvent<HTMLDivElement>) => {
     if (isEditingRef.current) {
       const markdownText = e.currentTarget.textContent || '';
-      onUpdate(item.id, { topic: markdownText });
+      
+      // 编辑完成时保存到历史记录
+      if (onFinishEditing) {
+        onFinishEditing(item.id, { topic: markdownText });
+      } else {
+        onUpdate(item.id, { topic: markdownText }, true);
+      }
+      
       isEditingRef.current = false;
 
       // 失去焦点后恢复HTML显示
@@ -193,7 +202,7 @@ export function OutlineItem({
   };
 
   const toggleCollapse = () => {
-    onUpdate(item.id, { expanded: item.expanded === false ? true : false });
+    onUpdate(item.id, { expanded: item.expanded === false ? true : false }, false);
   };
 
   const [dragState, setDragState] = React.useState<
@@ -368,6 +377,7 @@ export function OutlineItem({
             level={level + 1}
             parentId={item.id}
             onUpdate={onUpdate}
+            onFinishEditing={onFinishEditing}
             onDelete={onDelete}
             onAddChild={onAddChild}
             onOperation={onOperation}

@@ -38,25 +38,26 @@ function removeItemFromTree(
   items: OutlineItemType[],
   id: string
 ): { newTree: OutlineItemType[]; removedItem?: OutlineItemType } {
-  const result = findItemById(items, id);
-  if (!result) {
-    return { newTree: items };
-  }
+  let removedItem: OutlineItemType | undefined;
 
-  const { item, parent, index } = result;
+  const removeFromTree = (items: OutlineItemType[]): OutlineItemType[] => {
+    return items.map(item => {
+      if (item.id === id) {
+        removedItem = item;
+        return null; // Mark for removal
+      }
+      
+      if (item.children.length > 0) {
+        const newChildren = removeFromTree(item.children).filter(child => child !== null);
+        return { ...item, children: newChildren };
+      }
+      
+      return item;
+    }).filter(item => item !== null) as OutlineItemType[];
+  };
 
-  if (parent) {
-    // Item is in a parent's children array
-    const newParentChildren = [...parent.children];
-    newParentChildren.splice(index, 1);
-    parent.children = newParentChildren;
-    return { newTree: items, removedItem: item };
-  } else {
-    // Item is at the root level
-    const newItems = [...items];
-    newItems.splice(index, 1);
-    return { newTree: newItems, removedItem: item };
-  }
+  const newTree = removeFromTree(items);
+  return { newTree, removedItem };
 }
 
 /**
@@ -73,49 +74,45 @@ function insertItemIntoTree(
   itemToInsert: OutlineItemType,
   position: 'before' | 'after' | 'inside' = 'after'
 ): OutlineItemType[] {
-  const result = findItemById(items, targetId);
-  if (!result) {
-    return items;
-  }
-
-  const { item, parent, index } = result;
-
-  if (position === 'inside') {
-    // Insert as a child of the target item
-    const newItem = {
-      ...item,
-      children: [...item.children, itemToInsert],
-      // Ensure the parent is expanded
-      expanded: item.expanded === false ? true : item.expanded
-    };
+  const insertIntoTree = (items: OutlineItemType[]): OutlineItemType[] => {
+    const newItems: OutlineItemType[] = [];
     
-    // Replace the item in the tree
-    if (parent) {
-      const newParentChildren = [...parent.children];
-      newParentChildren[index] = newItem;
-      parent.children = newParentChildren;
-    } else {
-      const newItems = [...items];
-      newItems[index] = newItem;
-      return newItems;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      if (item.id === targetId) {
+        if (position === 'before') {
+          newItems.push(itemToInsert, item);
+        } else if (position === 'after') {
+          newItems.push(item, itemToInsert);
+        } else if (position === 'inside') {
+          // Insert as a child and ensure the parent is expanded
+          newItems.push({
+            ...item,
+            children: [...item.children, itemToInsert],
+            expanded: item.expanded === false ? true : item.expanded
+          });
+        }
+      } else {
+        // Process children recursively
+        if (item.children.length > 0) {
+          const newChildren = insertIntoTree(item.children);
+          // Only create new object if children actually changed
+          if (newChildren !== item.children) {
+            newItems.push({ ...item, children: newChildren });
+          } else {
+            newItems.push(item);
+          }
+        } else {
+          newItems.push(item);
+        }
+      }
     }
-    return items;
-  }
-
-  if (parent) {
-    // Target is in a parent's children array
-    const newParentChildren = [...parent.children];
-    const insertIndex = position === 'before' ? index : index + 1;
-    newParentChildren.splice(insertIndex, 0, itemToInsert);
-    parent.children = newParentChildren;
-    return items;
-  } else {
-    // Target is at the root level
-    const newItems = [...items];
-    const insertIndex = position === 'before' ? index : index + 1;
-    newItems.splice(insertIndex, 0, itemToInsert);
+    
     return newItems;
-  }
+  };
+
+  return insertIntoTree(items);
 }
 
 /**

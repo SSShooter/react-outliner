@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { OutlineItem } from './OutlineItem';
 import './OutlineItem.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 import { addSiblingOperation, addSiblingBeforeOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 import { moveToOperation } from '../utils/moveToOperation';
 import { globalRef } from '../utils/globalRef';
+import { useHistory } from '../hooks/useHistory';
 
 export interface OutlineData  {
   id: string;
@@ -37,6 +38,9 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
     data.map(addChildren)
   );
 
+  // 历史管理
+  const { saveToHistory, undo, redo } = useHistory<OutlineItemType[]>(items);
+
   // Notify parent component when items change
   const handleItemsChange = useCallback((newItems: OutlineItemType[]) => {
     // Only trigger onChange if data actually changed
@@ -44,10 +48,12 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
     const previousNodesJson = JSON.stringify(data);
     
     setItems(newItems);
+    
     if (currentNodesJson !== previousNodesJson && onChange) {
+      saveToHistory(newItems);
       onChange(newItems);
     }
-  }, [onChange, data]);
+  }, [onChange, data, saveToHistory]);
 
   const updateItem = (id: string, update: Partial<OutlineItemType>) => {
     const updateItemInTree = (items: OutlineItemType[]): OutlineItemType[] => {
@@ -66,6 +72,11 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
     };
 
     handleItemsChange(updateItemInTree(items));
+  };
+
+  // 编辑完成时保存历史记录
+  const finishEditing = (id: string, update: Partial<OutlineItemType>) => {
+    updateItem(id, update);
   };
 
   // 抽象的focus函数，用于在下一个渲染周期中聚焦指定元素
@@ -233,8 +244,93 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
     }
   };
 
+  // 处理撤销操作
+  const handleUndo = useCallback(() => {
+    const previousState = undo();
+    if (previousState) {
+      setItems(previousState);
+      if (onChange) {
+        onChange(previousState);
+      }
+    }
+  }, [undo, onChange]);
+
+  // 处理重做操作
+  const handleRedo = useCallback(() => {
+    const nextState = redo();
+    if (nextState) {
+      setItems(nextState);
+      if (onChange) {
+        onChange(nextState);
+      }
+    }
+  }, [redo, onChange]);
+
+  // 处理键盘快捷键
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 检查当前焦点是否在可编辑元素上
+      const activeElement = document.activeElement as HTMLElement;
+      const isContentEditable = activeElement && (
+        activeElement.getAttribute('contenteditable') === 'true' ||
+        activeElement.isContentEditable
+      );
+      const isInputElement = activeElement && (
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA'
+      );
+
+      // 特殊处理 contenteditable 的 Ctrl+Z
+      if (isContentEditable && e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+        // 获取当前内容
+        const currentContent = activeElement.textContent || '';
+        
+        // 尝试执行浏览器原生撤销
+        const undoResult = document.execCommand('undo');
+        
+        // 检查撤销后的内容
+        setTimeout(() => {
+          const newContent = activeElement.textContent || '';
+          
+          // 如果内容没有变化或撤销失败，说明已经撤销完了
+          if (!undoResult || currentContent === newContent) {
+            // 失去焦点并触发全局撤销
+            activeElement.blur();
+            handleUndo();
+          }
+        }, 0);
+        
+        return;
+      }
+
+      // 如果当前在其他输入元素中，不处理全局撤销/重做
+      if (isInputElement || isContentEditable) {
+        return;
+      }
+
+      // 检查是否按下了 Ctrl+Z (Undo)
+      if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+        return;
+      }
+      
+      // 检查是否按下了 Ctrl+Y 或 Ctrl+Shift+Z (Redo)
+      if (e.ctrlKey && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        handleRedo();
+        return;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleUndo, handleRedo]);
+
   return (
-    <div className="outliner-container">      
+    <div className="outliner-container">
       <div className="outliner-items">
         {items.map((item) => (
           <OutlineItem
@@ -243,6 +339,7 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
             item={item}
             level={0}
             onUpdate={updateItem}
+            onFinishEditing={finishEditing}
             onDelete={deleteItem}
             onAddChild={addChild}
             onOperation={handleOperation}
