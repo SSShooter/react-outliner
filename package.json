@@ -27,6 +27,7 @@
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
     "jsdom": "^26.0.0",
+    "katex": "^0.16.22",
     "lucide-react": "^0.488.0",
     "marked": "^16.2.0",
     "postcss": "^8.4.35",

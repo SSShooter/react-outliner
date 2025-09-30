@@ -57,11 +57,11 @@ export function OutlineItem({
   useEffect(() => {
     if (contentRef.current && !isEditingRef.current) {
       const htmlContent = globalRef.markdown
-        ? globalRef.markdown(item.topic)
+        ? globalRef.markdown(item.topic, item)
         : item.topic;
       contentRef.current.innerHTML = htmlContent;
     }
-  }, [item.topic]);
+  }, [item.topic, item]);
 
   const handleFocus = () => {
     if (contentRef.current) {
@@ -182,7 +182,7 @@ export function OutlineItem({
       // 失去焦点后恢复HTML显示
       if (contentRef.current) {
         const htmlContent = globalRef.markdown
-          ? globalRef.markdown(markdownText)
+          ? globalRef.markdown(markdownText, item)
           : markdownText;
         contentRef.current.innerHTML = htmlContent;
       }
@@ -336,7 +336,7 @@ export function OutlineItem({
 
         <div
           ref={contentRef}
-          contentEditable={readonly ? false : true}
+          contentEditable={readonly ? false : 'plaintext-only'}
           onBlur={handleBlur}
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}

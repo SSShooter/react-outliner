@@ -17,7 +17,7 @@ export interface OutlinerProps {
   data: OutlineData[];
   onChange?: (data: OutlineItemType[]) => void;
   readonly?: boolean;
-  markdown?: (text:string) => string;
+  markdown?: (text:string, item:OutlineItemType ) => string;
 }
 
 function generateId() {

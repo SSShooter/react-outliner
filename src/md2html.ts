@@ -1,3 +1,7 @@
+import { marked, Tokens } from "marked";
+import 'katex/dist/katex.min.css'
+import katex from 'katex'
+
 /**
  * 将 Markdown 字符串转换为 HTML
  * 支持：
@@ -145,7 +149,7 @@ export function md2html(md: string): string {
     let html = '<table><thead><tr>';
     headers.forEach(h => (html += `<th>${h}</th>`));
     html += '</tr></thead><tbody>';
-    body.forEach((row:string[]) => {
+    body.forEach((row: string[]) => {
       html += '<tr>';
       row.forEach(c => (html += `<td>${c}</td>`));
       html += '</tr>';
@@ -199,4 +203,40 @@ export function md2html(md: string): string {
   });
 
   return md.trim();
+}
+
+export const markedWrapped = (text: string, ) => {
+  if (!text) return ''
+  // if (!obj.useMd) return text
+  try {
+    // Configure marked renderer to add target="_blank" to links
+    const renderer = {
+      link(token: Tokens.Link) {
+        const href = token.href || ''
+        const title = token.title ? ` title="${token.title}"` : ''
+        const text = token.text || ''
+        return `<a href="${href}"${title} target="_blank">${text}</a>`
+      },
+    }
+
+    // let html = md2html(text)
+
+    // Handle display math ($$...$$)
+    text = text.replace(/\$\$([^$]+)\$\$/g, (_, math) => {
+      return katex.renderToString(math.trim(), { displayMode: true, output: 'html' })
+    })
+
+    // Handle inline math ($...$)
+    text = text.replace(/\$([^$]+)\$/g, (_, math) => {
+      return katex.renderToString(math.trim(), { displayMode: false, output: 'html' })
+    })
+
+    marked.use({ renderer, gfm: true })
+    const html = marked(text) as string
+
+    return html.trim()
+  } catch (error) {
+    console.log('md2html error', error)
+    return text
+  }
 }
