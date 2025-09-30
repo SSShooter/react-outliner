@@ -73,6 +73,10 @@ export const example = [
           { id: '3-1-1', topic: '**粗体文本** 和 *斜体文本*', children: [] },
           { id: '3-1-2', topic: '~~删除线~~ 和 `行内代码`', children: [] },
           { id: '3-1-3', topic: '> 这是一个引用块', children: [] },
+          { id: '3-1-4', topic: `这是一个多行文本
+            这是一个多行文本
+            这是一个多行文本
+            这是一个多行文本`, children: [] },
         ],
       },
       {

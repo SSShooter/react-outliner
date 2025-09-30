@@ -6,6 +6,7 @@ import { globalRef } from '../utils/globalRef';
 
 interface Props {
   item: OutlineItemType;
+  items: OutlineItemType[];
   level: number;
   parentId?: string;
   onUpdate: (id: string, update: Partial<OutlineItemType>) => void;
@@ -41,6 +42,7 @@ let draggedId: string | undefined;
 
 export function OutlineItem({
   item,
+  items,
   level,
   parentId,
   onUpdate,
@@ -328,12 +330,21 @@ export function OutlineItem({
             <ChevronDown size={14} />
           )}
         </button>
-
-        <div
-          className="outline-item-dot"
-          title={readonly ? undefined : '拖拽移动'}
-        />
-
+        <div className="outline-item-front">
+          <div
+            className="outline-item-dot"
+            title={readonly ? undefined : '拖拽移动'}
+          />
+          {!readonly && (level > 0 || items.length > 1) && (
+            <button
+              onClick={() => onDelete(item.id, parentId)}
+              className="outline-item-delete-btn"
+              title="Delete"
+            >
+              <Trash size={14} />
+            </button>
+          )}
+        </div>
         <div
           ref={contentRef}
           contentEditable={readonly ? false : 'plaintext-only'}
@@ -345,24 +356,13 @@ export function OutlineItem({
           data-item-id={item.id}
           suppressContentEditableWarning={true}
         />
-
-        {!readonly && level > 0 && (
-          <div className="outline-item-actions">
-            <button
-              onClick={() => onDelete(item.id, parentId)}
-              className="outline-item-delete-btn"
-              title="Delete"
-            >
-              <Trash size={14} />
-            </button>
-          </div>
-        )}
       </div>
 
       {item.expanded !== false &&
         item.children.map((child) => (
           <OutlineItem
             key={child.id}
+            items={item.children}
             item={child}
             level={level + 1}
             parentId={item.id}

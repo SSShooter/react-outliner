@@ -135,12 +135,12 @@
   transition: background-color 0.2s;
 }
 
-
 .outline-item-collapse-btn.hidden {
   visibility: hidden;
 }
 
-.outline-item-collapse-btn.collapsed,.outline-item-collapse-btn:hover {
+.outline-item-collapse-btn.collapsed,
+.outline-item-collapse-btn:hover {
   background-color: var(--rol-drag-indicator);
   opacity: 1;
 }
@@ -153,23 +153,18 @@
   opacity: 1;
 }
 
-.outline-item-dot {
-  width: 0.4rem;
-  height: 0.4rem;
-  background-color: var(--rol-primary-color);
-  border-radius: 9999px;
+.outline-item-front {
+  width: 1rem;
+  height: 1rem;
   flex-shrink: 0;
-  position: relative;
-  top: -2px;
 }
 
 /* 只有在非只读模式下才显示拖拽样式 */
-.outline-item-wrapper:not([style*='pointer-events: none']) .outline-item-dot {
+.outline-item-wrapper:not([style*='pointer-events: none']) {
   cursor: grab;
 }
 
-.outline-item-wrapper:not([style*='pointer-events: none'])
-  .outline-item-dot:active {
+.outline-item-wrapper:not([style*='pointer-events: none']):active {
   cursor: grabbing;
 }
 
@@ -179,6 +174,55 @@
   padding: 0.125rem 0;
   margin-left: 0.5rem;
   outline: none;
+}
+
+.outline-item-wrapper:hover .outline-item-delete-btn {
+  opacity: 1;
+}
+
+.outline-item-wrapper:hover .outline-item-dot {
+  opacity: 0;
+}
+
+.outline-item-dot {
+  position: absolute;
+  top: 15px;
+  left: 9px;
+  width: 0.4rem;
+  height: 0.4rem;
+  background-color: var(--rol-primary-color);
+  border-radius: 9999px;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.outline-item-delete-btn {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  color: var(--rol-danger-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  width: 1.5rem;
+  height: 1.5rem;
+  opacity: 0;
+}
+
+.outline-item-delete-btn:hover:not(:disabled) {
+  background-color: var(--rol-border-light);
+}
+
+.outline-item-delete-btn:disabled {
+  color: var(--rol-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* Markdown 标题样式 */
@@ -233,30 +277,4 @@
 .outline-item-topic a:hover {
   color: var(--rol-primary-color);
   text-decoration: underline;
-}
-
-.outline-item-actions {
-  display: flex;
-  gap: 0.25rem;
-  opacity: 0;
-}
-
-.outline-item-wrapper:hover .outline-item-actions {
-  opacity: 1;
-}
-
-.outline-item-delete-btn {
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  color: var(--rol-danger-color);
-}
-
-.outline-item-delete-btn:hover:not(:disabled) {
-  background-color: var(--rol-border-light);
-}
-
-.outline-item-delete-btn:disabled {
-  color: var(--rol-text-disabled);
-  cursor: not-allowed;
-  opacity: 0.5;
 }

@@ -239,6 +239,7 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
         {items.map((item) => (
           <OutlineItem
             key={item.id}
+            items={items}
             item={item}
             level={0}
             onUpdate={updateItem}
