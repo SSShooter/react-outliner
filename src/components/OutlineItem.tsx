@@ -148,6 +148,7 @@ export function OutlineItem({
           id: item.id,
           parentId,
           shouldFocusCurrent: true,
+          topic: '',
         });
       }
     } else if (e.key === 'Tab') {

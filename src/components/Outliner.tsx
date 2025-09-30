@@ -200,7 +200,7 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
     } else if (operation.type === 'outdent') {
       if (!operation.parentId) return;
 
-      const newItems = outdentOperation(items, operation.id, operation.parentId, operation.topic);
+      const newItems = outdentOperation(items, operation.id, operation.parentId, operation.topic || '');
       handleItemsChange(newItems);
 
       if (operation.shouldFocusCurrent) {
