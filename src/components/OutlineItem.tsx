@@ -83,6 +83,11 @@ export function OutlineItem({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // 如果正在使用输入法组合输入（如中文输入法），忽略按键事件
+    if (e.nativeEvent.isComposing) {
+      return;
+    }
+
     const topic = contentRef.current?.textContent?.trim();
     if (e.key === 'ArrowUp' && e.altKey) {
       e.preventDefault();
