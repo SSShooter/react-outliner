@@ -140,23 +140,54 @@ export function OutlineItem({
           parentId,
           shouldFocusNew: true,
         });
-      } else if (topic) {
-        // Enter with content: Add sibling after current node
-        onOperation({
-          type: 'addSibling',
-          id: item.id,
-          parentId,
-          shouldFocusNew: true,
-        });
       } else {
-        // Enter with empty content: Outdent
-        onOperation({
-          type: 'outdent',
-          id: item.id,
-          parentId,
-          shouldFocusCurrent: true,
-          topic: '',
-        });
+        // Get cursor position and split text
+        const selection = window.getSelection();
+        const fullText = contentRef.current?.textContent || '';
+
+        if (selection && selection.rangeCount > 0 && contentRef.current) {
+          const range = selection.getRangeAt(0);
+          const preCaretRange = range.cloneRange();
+          preCaretRange.selectNodeContents(contentRef.current);
+          preCaretRange.setEnd(range.endContainer, range.endOffset);
+          const cursorPosition = preCaretRange.toString().length;
+
+          const textBeforeCursor = fullText.substring(0, cursorPosition);
+          const textAfterCursor = fullText.substring(cursorPosition);
+
+          if (textBeforeCursor.trim() === '' && textAfterCursor.trim() === '') {
+            // Both parts empty: Outdent
+            onOperation({
+              type: 'outdent',
+              id: item.id,
+              parentId,
+              shouldFocusCurrent: true,
+              topic: '',
+            });
+          } else if (textAfterCursor.trim() !== '') {
+            // Has content after cursor: Split into two nodes
+            // Immediately update the DOM to show only text before cursor
+            contentRef.current.textContent = textBeforeCursor;
+            // Update current node with text before cursor
+            onUpdate(item.id, { topic: textBeforeCursor }, false);
+            // Add sibling with text after cursor
+            onOperation({
+              type: 'addSibling',
+              id: item.id,
+              parentId,
+              shouldFocusNew: true,
+              newNodeContent: textAfterCursor,
+            });
+          } else {
+            // Only has content before cursor or cursor at end: Add empty sibling
+            onOperation({
+              type: 'addSibling',
+              id: item.id,
+              parentId,
+              shouldFocusNew: true,
+            });
+          }
+        }
       }
     } else if (e.key === 'Tab') {
       e.preventDefault();

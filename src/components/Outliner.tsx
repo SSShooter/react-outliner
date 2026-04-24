@@ -180,7 +180,7 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
     if (operation.type === 'addSibling') {
       const newItem = {
         id: generateId(),
-        topic: '',
+        topic: operation.newNodeContent || '',
         children: [],
       };
 

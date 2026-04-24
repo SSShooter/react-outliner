@@ -14,6 +14,7 @@ export interface ItemOperation {
   shouldFocusNew?: boolean;
   shouldFocusCurrent?: boolean;
   topic?: string;
+  newNodeContent?: string;
   // For drag and drop operations
   draggedId?: string;
   targetId?: string;
