@@ -156,6 +156,8 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
           return {
             ...item,
             children: [...item.children, newItem],
+            // 如果父节点是折叠状态，展开它
+            expanded: item.expanded === false ? true : item.expanded,
           };
         }
         if (item.children.length) {

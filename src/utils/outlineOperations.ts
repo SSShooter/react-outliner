@@ -108,8 +108,13 @@ export function indentOperation(
       itemToMove.topic = topic || itemToMove.topic;
       // 从原位置移除
       newItems.splice(targetIndex, 1);
-      // 添加到前一个节点的子节点中
-      newItems[targetIndex - 1].children.push(itemToMove);
+      // 添加到前一个节点的子节点中，并展开父节点
+      const parentNode = newItems[targetIndex - 1];
+      parentNode.children.push(itemToMove);
+      // 如果父节点是折叠状态，展开它
+      if (parentNode.expanded === false) {
+        parentNode.expanded = true;
+      }
       return newItems;
     }
     return items;
