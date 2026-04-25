@@ -13,9 +13,6 @@ export default defineConfig(({ mode }) => {
         insertTypesEntry: true,
       })
       ],
-      optimizeDeps: {
-        exclude: ['lucide-react'],
-      },
       build: {
         lib: {
           entry: resolve(__dirname, 'src/components/Outliner.tsx'),
@@ -39,8 +36,5 @@ export default defineConfig(({ mode }) => {
   // 默认构建模式（演示页面）
   return {
     plugins: [react()],
-    optimizeDeps: {
-      exclude: ['lucide-react'],
-    },
   };
 });
