@@ -172,7 +172,6 @@
   flex: 1;
   cursor: text;
   padding: 0.125rem 0;
-  margin-left: 0.5rem;
   outline: none;
 }
 
@@ -180,7 +179,9 @@
   opacity: 1;
 }
 
-.outline-item-wrapper:hover .outline-item-dot {
+.outline-item-container:not([style*='pointer-events: none'])
+  .outline-item-wrapper:hover
+  .outline-item-dot {
   opacity: 0;
 }
 

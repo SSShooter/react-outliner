@@ -231,7 +231,7 @@ export const markedWrapped = (text: string, ) => {
       return katex.renderToString(math.trim(), { displayMode: false, output: 'html' })
     })
 
-    marked.use({ renderer, gfm: true })
+    marked.use({ renderer, gfm: true, breaks: true })
     const html = marked(text) as string
 
     return html.trim()
