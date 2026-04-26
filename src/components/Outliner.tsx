@@ -282,18 +282,22 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
         activeElement.tagName === 'TEXTAREA'
       );
 
-      // 特殊处理 contenteditable 的 Ctrl+Z
-      if (isContentEditable && e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+      // 检测是否按下了修饰键（Mac 用 Cmd，Windows/Linux 用 Ctrl）
+      const isModifierKey = e.metaKey || e.ctrlKey;
+      const key = e.key.toLowerCase();
+
+      // 特殊处理 contenteditable 的 Cmd+Z / Ctrl+Z
+      if (isContentEditable && isModifierKey && key === 'z' && !e.shiftKey) {
         // 获取当前内容
         const currentContent = activeElement.textContent || '';
-        
+
         // 尝试执行浏览器原生撤销
         const undoResult = document.execCommand('undo');
-        
+
         // 检查撤销后的内容
         setTimeout(() => {
           const newContent = activeElement.textContent || '';
-          
+
           // 如果内容没有变化或撤销失败，说明已经撤销完了
           if (!undoResult || currentContent === newContent) {
             // 失去焦点并触发全局撤销
@@ -301,7 +305,7 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
             handleUndo();
           }
         }, 0);
-        
+
         return;
       }
 
@@ -310,15 +314,15 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
         return;
       }
 
-      // 检查是否按下了 Ctrl+Z (Undo)
-      if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+      // 检查是否按下了 Cmd+Z / Ctrl+Z (Undo)
+      if (isModifierKey && key === 'z' && !e.shiftKey) {
         e.preventDefault();
         handleUndo();
         return;
       }
-      
-      // 检查是否按下了 Ctrl+Y 或 Ctrl+Shift+Z (Redo)
-      if (e.ctrlKey && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+
+      // 检查是否按下了 Cmd+Shift+Z / Ctrl+Y / Ctrl+Shift+Z (Redo)
+      if (isModifierKey && (key === 'y' || (key === 'z' && e.shiftKey))) {
         e.preventDefault();
         handleRedo();
         return;
