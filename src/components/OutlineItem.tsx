@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Trash } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { ChevronRight, ChevronDown, Trash, EllipsisVertical, ArrowRight, ArrowLeft } from 'lucide-react';
 import './OutlineItem.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
 import { globalRef } from '../utils/globalRef';
@@ -56,6 +56,19 @@ export function OutlineItem({
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const isEditingRef = useRef(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuContainerRef.current && !menuContainerRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
 
   // 确保组件初始化时显示HTML内容
   useEffect(() => {
@@ -376,20 +389,77 @@ export function OutlineItem({
             <ChevronDown size={14} />
           )}
         </button>
+        {!readonly && (
+          <div className="outline-item-menu-wrapper" ref={menuContainerRef}>
+            <button
+              className="outline-item-menu-btn"
+              title="操作菜单"
+              draggable="false"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen((v) => !v);
+              }}
+            >
+              <EllipsisVertical size={12} />
+            </button>
+            {menuOpen && (
+              <div className="outline-item-menu-dropdown">
+                <button
+                  className="outline-item-menu-item"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={() => {
+                    onOperation({
+                      type: 'outdent',
+                      id: item.id,
+                      parentId,
+                      shouldFocusCurrent: true,
+                      topic: item.topic,
+                    });
+                    setMenuOpen(false);
+                  }}
+                >
+                  <ArrowLeft size={12} />
+                  <span>取消缩进</span>
+                </button>
+                <button
+                  className="outline-item-menu-item"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={() => {
+                    onOperation({
+                      type: 'indent',
+                      id: item.id,
+                      parentId,
+                      shouldFocusCurrent: true,
+                      topic: item.topic,
+                    });
+                    setMenuOpen(false);
+                  }}
+                >
+                  <ArrowRight size={12} />
+                  <span>缩进</span>
+                </button>
+                {(level > 0 || items.length > 1) && (
+                  <button
+                    className="outline-item-menu-item outline-item-menu-item-danger"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={() => {
+                      onDelete(item.id, parentId);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    <Trash size={12} />
+                    <span>删除</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
         <div className="outline-item-front">
           <div
             className="outline-item-dot"
             title={readonly ? undefined : '拖拽移动'}
           />
-          {!readonly && (level > 0 || items.length > 1) && (
-            <button
-              onClick={() => onDelete(item.id, parentId)}
-              className="outline-item-delete-btn"
-              title="Delete"
-            >
-              <Trash size={14} />
-            </button>
-          )}
         </div>
         <div
           ref={contentRef}
