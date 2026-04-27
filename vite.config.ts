@@ -21,11 +21,12 @@ export default defineConfig(({ mode }) => {
           fileName: 'react-outliner-neo',
         },
         rollupOptions: {
-          external: ['react', 'react-dom'],
+          external: ['react', 'react-dom', 'lucide-react'],
           output: {
             globals: {
               react: 'React',
               'react-dom': 'ReactDOM',
+              'lucide-react': 'LucideReact',
             },
           },
         },
