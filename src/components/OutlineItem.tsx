@@ -392,7 +392,7 @@ export function OutlineItem({
           )}
         </button>
         {!readonly && (
-          <div className="outline-item-menu-wrapper" ref={menuContainerRef}>
+          <div className={`outline-item-menu-wrapper${item.children.length === 0 ? ' outline-item-menu-wrapper-leaf' : ''}`} ref={menuContainerRef}>
             <button
               className="outline-item-menu-btn"
               title="操作菜单"

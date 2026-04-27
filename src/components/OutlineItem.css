@@ -265,6 +265,10 @@
   top: 10px;
 }
 
+.outline-item-menu-wrapper.outline-item-menu-wrapper-leaf {
+  left: -19px;
+}
+
 .outline-item-menu-btn {
   width: 1rem;
   height: 1rem;
