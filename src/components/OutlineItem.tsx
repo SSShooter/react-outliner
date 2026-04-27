@@ -14,6 +14,7 @@ interface Props {
   onDelete: (id: string, parentId?: string) => void;
   onAddChild: (parentId: string) => void;
   onOperation: (operation: ItemOperation) => void;
+  onZoom?: (id: string) => void;
   readonly?: boolean;
 }
 
@@ -51,6 +52,7 @@ export function OutlineItem({
   onDelete,
   onAddChild,
   onOperation,
+  onZoom,
   readonly,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -457,8 +459,10 @@ export function OutlineItem({
         )}
         <div className="outline-item-front">
           <div
-            className="outline-item-dot"
-            title={readonly ? undefined : '拖拽移动'}
+            className={`outline-item-dot${onZoom ? ' outline-item-dot-zoomable' : ''}`}
+            title="点击进入"
+            style={onZoom ? { pointerEvents: 'auto' } : undefined}
+            onClick={onZoom ? (e) => { e.stopPropagation(); onZoom(item.id); } : undefined}
           />
         </div>
         <div
@@ -487,6 +491,7 @@ export function OutlineItem({
             onDelete={onDelete}
             onAddChild={onAddChild}
             onOperation={onOperation}
+            onZoom={onZoom}
             readonly={readonly}
           />
         ))}

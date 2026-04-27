@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { Home } from 'lucide-react';
 import { OutlineItem } from './OutlineItem';
 import './OutlineItem.css';
 import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
@@ -6,6 +7,33 @@ import { addSiblingOperation, addSiblingBeforeOperation, indentOperation, moveDo
 import { moveToOperation } from '../utils/moveToOperation';
 import { globalRef } from '../utils/globalRef';
 import { useHistory } from '../hooks/useHistory';
+
+function findItemById(items: OutlineItemType[], id: string): OutlineItemType | null {
+  for (const item of items) {
+    if (item.id === id) return item;
+    if (item.children.length) {
+      const found = findItemById(item.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function findPathToNode(
+  items: OutlineItemType[],
+  targetId: string,
+  path: Array<{ id: string; topic: string }> = []
+): Array<{ id: string; topic: string }> | null {
+  for (const item of items) {
+    const currentPath = [...path, { id: item.id, topic: item.topic }];
+    if (item.id === targetId) return currentPath;
+    if (item.children.length) {
+      const found = findPathToNode(item.children, targetId, currentPath);
+      if (found) return found;
+    }
+  }
+  return null;
+}
 
 export interface OutlineData  {
   id: string;
@@ -37,6 +65,7 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
   const [items, setItems] = useState<OutlineItemType[]>(
     data.map(addChildren)
   );
+  const [zoomedId, setZoomedId] = useState<string | null>(null);
 
   // 历史管理
   const { saveToHistory, undo, redo } = useHistory<OutlineItemType[]>(items);
@@ -268,6 +297,20 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
     }
   }, [redo, onChange]);
 
+  const handleZoom = useCallback((id: string) => {
+    setZoomedId(id);
+  }, []);
+
+  // 如果缩放的节点被删除，重置到根视图
+  useEffect(() => {
+    if (zoomedId && !findItemById(items, zoomedId)) {
+      setZoomedId(null);
+    }
+  }, [items, zoomedId]);
+
+  const breadcrumbPath = zoomedId ? (findPathToNode(items, zoomedId) || []) : [];
+  const displayItems = zoomedId ? (findItemById(items, zoomedId)?.children || []) : items;
+
   // 处理键盘快捷键
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -337,18 +380,41 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
 
   return (
     <div className="outliner-container">
+      {breadcrumbPath.length > 0 && (
+        <div className="outliner-breadcrumb">
+          <button className="breadcrumb-item breadcrumb-root" onClick={() => setZoomedId(null)}>
+            <Home size={14} />
+          </button>
+          {breadcrumbPath.map((node, index) => (
+            <span key={node.id} className="breadcrumb-segment">
+              <span className="breadcrumb-separator">/</span>
+              {index < breadcrumbPath.length - 1 ? (
+                <button className="breadcrumb-item" onClick={() => setZoomedId(node.id)}>
+                  {node.topic || '(无标题)'}
+                </button>
+              ) : (
+                <span className="breadcrumb-item breadcrumb-current">
+                  {node.topic || '(无标题)'}
+                </span>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="outliner-items">
-        {items.map((item) => (
+        {displayItems.map((item) => (
           <OutlineItem
             key={item.id}
-            items={items}
+            items={displayItems}
             item={item}
             level={0}
+            parentId={zoomedId || undefined}
             onUpdate={updateItem}
             onFinishEditing={finishEditing}
             onDelete={deleteItem}
             onAddChild={addChild}
             onOperation={handleOperation}
+            onZoom={handleZoom}
             readonly={readonly}
           />
         ))}
