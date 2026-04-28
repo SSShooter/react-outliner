@@ -263,6 +263,7 @@
   position: absolute;
   left: -43px;
   top: 10px;
+  pointer-events: none;
 }
 
 .outline-item-menu-wrapper.outline-item-menu-wrapper-leaf {
@@ -283,6 +284,7 @@
   padding: 0;
   transition: opacity 0.2s ease, background-color 0.2s;
   color: var(--rol-text-color);
+  pointer-events: auto;
 }
 
 .outline-item-wrapper:hover .outline-item-menu-btn {
@@ -308,6 +310,7 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
+  pointer-events: auto;
 }
 
 .dark .outline-item-menu-dropdown {
