@@ -380,27 +380,25 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
 
   return (
     <div className="outliner-container">
-      {breadcrumbPath.length > 0 && (
-        <div className="outliner-breadcrumb">
-          <button className="breadcrumb-item breadcrumb-root" onClick={() => setZoomedId(null)}>
-            <Home size={14} />
-          </button>
-          {breadcrumbPath.map((node, index) => (
-            <span key={node.id} className="breadcrumb-segment">
-              <span className="breadcrumb-separator">/</span>
-              {index < breadcrumbPath.length - 1 ? (
-                <button className="breadcrumb-item" onClick={() => setZoomedId(node.id)}>
-                  {node.topic || '(无标题)'}
-                </button>
-              ) : (
-                <span className="breadcrumb-item breadcrumb-current">
-                  {node.topic || '(无标题)'}
-                </span>
-              )}
-            </span>
-          ))}
-        </div>
-      )}
+      <div className="outliner-breadcrumb">
+        <button className="breadcrumb-item breadcrumb-root" onClick={() => setZoomedId(null)}>
+          <Home size={14} />
+        </button>
+        {breadcrumbPath.map((node, index) => (
+          <span key={node.id} className="breadcrumb-segment">
+            <span className="breadcrumb-separator">/</span>
+            {index < breadcrumbPath.length - 1 ? (
+              <button className="breadcrumb-item" onClick={() => setZoomedId(node.id)}>
+                {node.topic || '(无标题)'}
+              </button>
+            ) : (
+              <span className="breadcrumb-item breadcrumb-current">
+                {node.topic || '(无标题)'}
+              </span>
+            )}
+          </span>
+        ))}
+      </div>
       <div className="outliner-items">
         {displayItems.map((item) => (
           <OutlineItem
