@@ -2,7 +2,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { Home } from 'lucide-react';
 import { OutlineItem } from './OutlineItem';
 import './OutlineItem.css';
-import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
+import type { OutlineItem as OutlineItemType, ItemOperation, OutlinerI18n } from '../types';
+export type { OutlinerI18n };
 import { addSiblingOperation, addSiblingBeforeOperation, indentOperation, moveDownOperation, moveUpOperation, outdentOperation } from '../utils/outlineOperations';
 import { moveToOperation } from '../utils/moveToOperation';
 import { globalRef } from '../utils/globalRef';
@@ -48,7 +49,17 @@ export interface OutlinerProps {
   readonly?: boolean;
   markdown?: (text:string, item:OutlineItemType ) => string;
   fileName?: string;
+  i18n?: Partial<OutlinerI18n>;
 }
+
+const defaultI18n: OutlinerI18n = {
+  menuTitle: '操作菜单',
+  outdent: '取消缩进',
+  indent: '缩进',
+  delete: '删除',
+  zoomIn: '点击进入',
+  untitled: '(无标题)',
+};
 
 function generateId() {
   return Math.random().toString(36).substr(2, 9);
@@ -61,8 +72,9 @@ function addChildren(input: OutlineData):OutlineItemType{
   }
 }
 
-export function Outliner({ data, onChange,readonly,markdown,fileName }: OutlinerProps) {
+export function Outliner({ data, onChange, readonly, markdown, fileName, i18n: i18nProp }: OutlinerProps) {
   globalRef.markdown = markdown;
+  const i18n: OutlinerI18n = { ...defaultI18n, ...i18nProp };
   const [items, setItems] = useState<OutlineItemType[]>(
     data.map(addChildren)
   );
@@ -390,11 +402,11 @@ export function Outliner({ data, onChange,readonly,markdown,fileName }: Outliner
             <span className="breadcrumb-separator">/</span>
             {index < breadcrumbPath.length - 1 ? (
               <button className="breadcrumb-item" onClick={() => setZoomedId(node.id)}>
-                {node.topic || '(无标题)'}
+                {node.topic || i18n.untitled}
               </button>
             ) : (
               <span className="breadcrumb-item breadcrumb-current">
-                {node.topic || '(无标题)'}
+                {node.topic || i18n.untitled}
               </span>
             )}
           </span>
@@ -415,6 +427,7 @@ export function Outliner({ data, onChange,readonly,markdown,fileName }: Outliner
             onOperation={handleOperation}
             onZoom={handleZoom}
             readonly={readonly}
+            i18n={i18n}
           />
         ))}
       </div>

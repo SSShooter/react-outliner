@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { Trash, EllipsisVertical, ArrowRight, ArrowLeft } from 'lucide-react';
-import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
+import type { OutlineItem as OutlineItemType, ItemOperation, OutlinerI18n } from '../types';
 
 interface Props {
   item: OutlineItemType;
@@ -9,6 +9,7 @@ interface Props {
   parentId?: string;
   onOperation: (operation: ItemOperation) => void;
   onDelete: (id: string, parentId?: string) => void;
+  i18n: OutlinerI18n;
 }
 
 export function OutlineItemMenu({
@@ -18,6 +19,7 @@ export function OutlineItemMenu({
   parentId,
   onOperation,
   onDelete,
+  i18n,
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuContainerRef = useRef<HTMLDivElement>(null);
@@ -43,7 +45,7 @@ export function OutlineItemMenu({
     >
       <button
         className="outline-item-menu-btn"
-        title="操作菜单"
+        title={i18n.menuTitle}
         draggable="false"
         onClick={(e) => {
           e.stopPropagation();
@@ -69,7 +71,7 @@ export function OutlineItemMenu({
             }}
           >
             <ArrowLeft size={12} />
-            <span>取消缩进</span>
+            <span>{i18n.outdent}</span>
           </button>
           <button
             className="outline-item-menu-item"
@@ -86,7 +88,7 @@ export function OutlineItemMenu({
             }}
           >
             <ArrowRight size={12} />
-            <span>缩进</span>
+            <span>{i18n.indent}</span>
           </button>
           {(level > 0 || items.length > 1) && (
             <button
@@ -98,7 +100,7 @@ export function OutlineItemMenu({
               }}
             >
               <Trash size={12} />
-              <span>删除</span>
+              <span>{i18n.delete}</span>
             </button>
           )}
         </div>

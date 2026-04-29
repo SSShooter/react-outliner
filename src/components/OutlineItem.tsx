@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import { OutlineItemMenu } from './OutlineItemMenu';
 import './OutlineItem.css';
-import type { OutlineItem as OutlineItemType, ItemOperation } from '../types';
+import type { OutlineItem as OutlineItemType, ItemOperation, OutlinerI18n } from '../types';
 import { globalRef } from '../utils/globalRef';
 
 interface Props {
@@ -17,6 +17,7 @@ interface Props {
   onOperation: (operation: ItemOperation) => void;
   onZoom?: (id: string) => void;
   readonly?: boolean;
+  i18n: OutlinerI18n;
 }
 
 // More efficient method to check if an item is a descendant of another using DOM contains
@@ -55,6 +56,7 @@ export function OutlineItem({
   onOperation,
   onZoom,
   readonly,
+  i18n,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -370,7 +372,7 @@ export function OutlineItem({
         <div className="outline-item-front">
           <div
             className={`outline-item-dot${onZoom ? ' outline-item-dot-zoomable' : ''}`}
-            title="点击进入"
+            title={i18n.zoomIn}
             style={onZoom ? { pointerEvents: 'auto' } : undefined}
             onClick={onZoom ? (e) => { e.stopPropagation(); onZoom(item.id); } : undefined}
           />
@@ -395,6 +397,7 @@ export function OutlineItem({
               parentId={parentId}
               onOperation={onOperation}
               onDelete={onDelete}
+              i18n={i18n}
             />
           )}
           <button
@@ -432,6 +435,7 @@ export function OutlineItem({
             onOperation={onOperation}
             onZoom={onZoom}
             readonly={readonly}
+            i18n={i18n}
           />
         ))}
     </div>

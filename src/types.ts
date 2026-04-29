@@ -1,3 +1,12 @@
+export interface OutlinerI18n {
+  menuTitle: string;
+  outdent: string;
+  indent: string;
+  delete: string;
+  zoomIn: string;
+  untitled: string;
+}
+
 export interface OutlineItem {
   id: string;
   topic: string;
