@@ -47,6 +47,7 @@ export interface OutlinerProps {
   onChange?: (data: OutlineItemType[]) => void;
   readonly?: boolean;
   markdown?: (text:string, item:OutlineItemType ) => string;
+  fileName?: string;
 }
 
 function generateId() {
@@ -60,7 +61,7 @@ function addChildren(input: OutlineData):OutlineItemType{
   }
 }
 
-export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
+export function Outliner({ data, onChange,readonly,markdown,fileName }: OutlinerProps) {
   globalRef.markdown = markdown;
   const [items, setItems] = useState<OutlineItemType[]>(
     data.map(addChildren)
@@ -382,7 +383,7 @@ export function Outliner({ data, onChange,readonly,markdown }: OutlinerProps) {
     <div className="outliner-container">
       <div className="outliner-breadcrumb">
         <button className="breadcrumb-item breadcrumb-root" onClick={() => setZoomedId(null)}>
-          <Home size={14} />
+          <Home size={14} />{fileName && <span>{fileName}</span>}
         </button>
         {breadcrumbPath.map((node, index) => (
           <span key={node.id} className="breadcrumb-segment">
