@@ -123,9 +123,6 @@
 }
 
 .outline-item-collapse-btn {
-  position: absolute;
-  left: -19px;
-  top: 10px;
   width: 1rem;
   height: 1rem;
   display: flex;
@@ -135,6 +132,9 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s, background-color 0.2s;
+}
+.outline-item-collapse-btn[data-state='hidden'] {
+  display: none;
 }
 
 .outline-item-collapse-btn[data-state='expanded'] {
@@ -261,15 +261,20 @@
   background-color: transparent;
 }
 
-.outline-item-menu-wrapper {
+.outline-item-btn-group {
   position: absolute;
-  left: -43px;
+  left: -39px;
   top: 10px;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
   pointer-events: none;
 }
 
-.outline-item-menu-wrapper.outline-item-menu-wrapper-leaf {
-  left: -19px;
+.outline-item-menu-wrapper {
+  position: relative;
 }
 
 .outline-item-menu-btn {

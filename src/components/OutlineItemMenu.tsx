@@ -38,7 +38,7 @@ export function OutlineItemMenu({
 
   return (
     <div
-      className={`outline-item-menu-wrapper${item.children.length === 0 ? ' outline-item-menu-wrapper-leaf' : ''}`}
+      className="outline-item-menu-wrapper"
       ref={menuContainerRef}
     >
       <button

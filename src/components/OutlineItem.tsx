@@ -367,33 +367,6 @@ export function OutlineItem({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        <button
-          onClick={toggleCollapse}
-          className="outline-item-collapse-btn"
-          data-state={
-            item.children.length === 0
-              ? 'hidden'
-              : item.expanded === false
-              ? 'collapsed'
-              : 'expanded'
-          }
-        >
-          {item.expanded === false ? (
-            <ChevronRight size={14} />
-          ) : (
-            <ChevronDown size={14} />
-          )}
-        </button>
-        {!readonly && (
-          <OutlineItemMenu
-            item={item}
-            items={items}
-            level={level}
-            parentId={parentId}
-            onOperation={onOperation}
-            onDelete={onDelete}
-          />
-        )}
         <div className="outline-item-front">
           <div
             className={`outline-item-dot${onZoom ? ' outline-item-dot-zoomable' : ''}`}
@@ -413,6 +386,35 @@ export function OutlineItem({
           data-item-id={item.id}
           suppressContentEditableWarning={true}
         />
+        <div className="outline-item-btn-group">
+          {!readonly && (
+            <OutlineItemMenu
+              item={item}
+              items={items}
+              level={level}
+              parentId={parentId}
+              onOperation={onOperation}
+              onDelete={onDelete}
+            />
+          )}
+          <button
+            onClick={toggleCollapse}
+            className="outline-item-collapse-btn"
+            data-state={
+              item.children.length === 0
+                ? 'hidden'
+                : item.expanded === false
+                ? 'collapsed'
+                : 'expanded'
+            }
+          >
+            {item.expanded === false ? (
+              <ChevronRight size={14} />
+            ) : (
+              <ChevronDown size={14} />
+            )}
+          </button>
+        </div>
       </div>
 
       {item.expanded !== false &&
