@@ -131,27 +131,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: all;
   border-radius: 0.25rem;
-  transition: background-color 0.2s;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, background-color 0.2s;
 }
 
-.outline-item-collapse-btn.hidden {
-  visibility: hidden;
+.outline-item-collapse-btn[data-state='expanded'] {
+  pointer-events: auto;
 }
 
-.outline-item-collapse-btn.collapsed,
+.outline-item-collapse-btn[data-state='collapsed'] {
+  opacity: 1;
+  pointer-events: auto;
+  background-color: var(--rol-drag-indicator);
+}
+
+.outline-item-wrapper:hover .outline-item-collapse-btn[data-state='expanded'] {
+  opacity: 1;
+  background-color: var(--rol-drag-indicator);
+}
+
 .outline-item-collapse-btn:hover {
   background-color: var(--rol-drag-indicator);
-  opacity: 1;
-}
-
-.outline-item-collapse-btn.expanded {
-  opacity: 0;
-}
-
-.outline-item-wrapper:hover .outline-item-collapse-btn.expanded {
-  opacity: 1;
 }
 
 .outline-item-front {
@@ -282,7 +284,7 @@
   justify-content: center;
   border-radius: 0.25rem;
   padding: 0;
-  transition: opacity 0.2s ease, background-color 0.2s;
+  transition: opacity 0.2s, background-color 0.2s;
   color: var(--rol-text-color);
   pointer-events: auto;
 }

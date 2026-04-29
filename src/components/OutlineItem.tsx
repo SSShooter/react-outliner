@@ -369,9 +369,14 @@ export function OutlineItem({
       >
         <button
           onClick={toggleCollapse}
-          className={`outline-item-collapse-btn ${
-            item.children.length ? '' : 'hidden'
-          } ${item.expanded === false ? 'collapsed' : 'expanded'}`}
+          className="outline-item-collapse-btn"
+          data-state={
+            item.children.length === 0
+              ? 'hidden'
+              : item.expanded === false
+              ? 'collapsed'
+              : 'expanded'
+          }
         >
           {item.expanded === false ? (
             <ChevronRight size={14} />
