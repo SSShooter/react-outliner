@@ -129,9 +129,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 0.25rem;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s, background-color 0.2s;
+  transition: background-color 0.2s;
 }
 .outline-item-collapse-btn[data-state='hidden'] {
   display: none;
@@ -142,13 +141,11 @@
 }
 
 .outline-item-collapse-btn[data-state='collapsed'] {
-  opacity: 1;
   pointer-events: auto;
   background-color: var(--rol-drag-indicator);
 }
 
 .outline-item-wrapper:hover .outline-item-collapse-btn[data-state='expanded'] {
-  opacity: 1;
   background-color: var(--rol-drag-indicator);
 }
 
@@ -271,6 +268,13 @@
   justify-content: flex-end;
   gap: 4px;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.outline-item-wrapper:hover .outline-item-btn-group,
+.outline-item-btn-group:has([data-state='collapsed']) {
+  opacity: 1;
 }
 
 .outline-item-menu-wrapper {
@@ -280,7 +284,6 @@
 .outline-item-menu-btn {
   width: 1rem;
   height: 1rem;
-  opacity: 0;
   border: none;
   background: none;
   cursor: pointer;
@@ -289,17 +292,12 @@
   justify-content: center;
   border-radius: 0.25rem;
   padding: 0;
-  transition: opacity 0.2s, background-color 0.2s;
+  transition: background-color 0.2s;
   color: var(--rol-text-color);
   pointer-events: auto;
 }
 
 .outline-item-wrapper:hover .outline-item-menu-btn {
-  opacity: 1;
-  background-color: var(--rol-drag-indicator);
-}
-
-.outline-item-menu-btn:hover {
   background-color: var(--rol-drag-indicator);
 }
 
