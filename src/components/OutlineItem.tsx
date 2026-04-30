@@ -62,15 +62,16 @@ export function OutlineItem({
   const contentRef = useRef<HTMLDivElement>(null);
   const isEditingRef = useRef(false);
 
-  // 确保组件初始化时显示HTML内容
+  // 确保组件初始化时显示HTML内容（仅在非只读模式下）
   useEffect(() => {
+    if (readonly) return;
     if (contentRef.current && !isEditingRef.current) {
       const htmlContent = globalRef.markdown
         ? globalRef.markdown(item.topic, item)
         : item.topic;
       contentRef.current.innerHTML = htmlContent;
     }
-  }, [item.topic, item]);
+  }, [item.topic, item, readonly]);
 
   const handleFocus = () => {
     if (contentRef.current) {
@@ -377,17 +378,30 @@ export function OutlineItem({
             onClick={onZoom ? (e) => { e.stopPropagation(); onZoom(item.id); } : undefined}
           />
         </div>
-        <div
-          ref={contentRef}
-          contentEditable={readonly ? false : 'plaintext-only'}
-          onBlur={handleBlur}
-          onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
-          className="outline-item-topic"
-          data-outline-item
-          data-item-id={item.id}
-          suppressContentEditableWarning={true}
-        />
+        {readonly ? (
+          <div
+            className="outline-item-topic"
+            data-outline-item
+            data-item-id={item.id}
+            dangerouslySetInnerHTML={{
+              __html: globalRef.markdown
+                ? globalRef.markdown(item.topic, item)
+                : item.topic,
+            }}
+          />
+        ) : (
+          <div
+            ref={contentRef}
+            contentEditable="plaintext-only"
+            onBlur={handleBlur}
+            onFocus={handleFocus}
+            onKeyDown={handleKeyDown}
+            className="outline-item-topic"
+            data-outline-item
+            data-item-id={item.id}
+            suppressContentEditableWarning={true}
+          />
+        )}
         <div className="outline-item-btn-group">
           {!readonly && (
             <OutlineItemMenu
