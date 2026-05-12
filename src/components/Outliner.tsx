@@ -59,6 +59,8 @@ const defaultI18n: OutlinerI18n = {
   delete: '删除',
   zoomIn: '点击进入',
   untitled: '(无标题)',
+  dragToMove: '拖拽移动',
+  zoomInAndDrag: '点击进入 / 拖拽移动',
 };
 
 function generateId() {

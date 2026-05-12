@@ -2,7 +2,11 @@ import React, { useRef, useEffect } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import { OutlineItemMenu } from './OutlineItemMenu';
 import './OutlineItem.css';
-import type { OutlineItem as OutlineItemType, ItemOperation, OutlinerI18n } from '../types';
+import type {
+  OutlineItem as OutlineItemType,
+  ItemOperation,
+  OutlinerI18n,
+} from '../types';
 import { globalRef } from '../utils/globalRef';
 
 interface Props {
@@ -10,7 +14,11 @@ interface Props {
   items: OutlineItemType[];
   level: number;
   parentId?: string;
-  onUpdate: (id: string, update: Partial<OutlineItemType>, shouldSaveHistory?: boolean) => void;
+  onUpdate: (
+    id: string,
+    update: Partial<OutlineItemType>,
+    shouldSaveHistory?: boolean,
+  ) => void;
   onFinishEditing?: (id: string, update: Partial<OutlineItemType>) => void;
   onDelete: (id: string, parentId?: string) => void;
   onAddChild: (parentId: string) => void;
@@ -223,14 +231,14 @@ export function OutlineItem({
   const handleBlur = (e: React.FormEvent<HTMLDivElement>) => {
     if (isEditingRef.current) {
       const markdownText = e.currentTarget.textContent || '';
-      
+
       // 编辑完成时保存到历史记录
       if (onFinishEditing) {
         onFinishEditing(item.id, { topic: markdownText });
       } else {
         onUpdate(item.id, { topic: markdownText }, true);
       }
-      
+
       isEditingRef.current = false;
 
       // 失去焦点后恢复HTML显示
@@ -244,26 +252,28 @@ export function OutlineItem({
   };
 
   const toggleCollapse = () => {
-    onUpdate(item.id, { expanded: item.expanded === false ? true : false }, false);
+    onUpdate(
+      item.id,
+      { expanded: item.expanded === false ? true : false },
+      false,
+    );
   };
 
   const [dragState, setDragState] = React.useState<
     'before' | 'inside' | 'after' | undefined
   >(undefined);
+  const [isDragging, setIsDragging] = React.useState(false);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.stopPropagation();
     draggedId = item.id;
     e.dataTransfer.effectAllowed = 'move';
-
-    // Add a class to the dragged element
-    e.currentTarget.classList.add('dragging');
+    setIsDragging(true);
   };
 
-  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
-    // Remove the class from the dragged element
-    e.currentTarget.classList.remove('dragging');
+  const handleDragEnd = () => {
     setDragState(undefined);
+    setIsDragging(false);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -336,10 +346,10 @@ export function OutlineItem({
     dragState === 'before'
       ? 'drag-over'
       : dragState === 'after'
-      ? 'drag-over-bottom'
-      : dragState === 'inside'
-      ? 'drag-over-inside'
-      : '';
+        ? 'drag-over-bottom'
+        : dragState === 'inside'
+          ? 'drag-over-inside'
+          : '';
 
   return (
     <div
@@ -347,11 +357,8 @@ export function OutlineItem({
       className={`outline-item-container`}
       style={{
         pointerEvents: readonly ? 'none' : 'auto',
+        opacity: isDragging ? 0.4 : 1,
       }}
-      draggable="true"
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragLeave={handleDragLeave}
     >
       {/* Vertical lines for alignment */}
       {level > 0 && (
@@ -368,14 +375,25 @@ export function OutlineItem({
         className={`outline-item-wrapper ${dragOverClass}`}
         style={{ marginLeft: `${level * 24}px` }}
         onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         <div className="outline-item-front">
           <div
             className={`outline-item-dot${onZoom ? ' outline-item-dot-zoomable' : ''}`}
-            title={i18n.zoomIn}
-            style={onZoom ? { pointerEvents: 'auto' } : undefined}
-            onClick={onZoom ? (e) => { e.stopPropagation(); onZoom(item.id); } : undefined}
+            title={onZoom ? i18n.zoomInAndDrag : i18n.dragToMove}
+            style={onZoom || !readonly ? { pointerEvents: 'auto' } : undefined}
+            onClick={
+              onZoom
+                ? (e) => {
+                    e.stopPropagation();
+                    onZoom(item.id);
+                  }
+                : undefined
+            }
+            draggable={!readonly}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
           />
         </div>
         {readonly ? (
@@ -421,8 +439,8 @@ export function OutlineItem({
               item.children.length === 0
                 ? 'hidden'
                 : item.expanded === false
-                ? 'collapsed'
-                : 'expanded'
+                  ? 'collapsed'
+                  : 'expanded'
             }
           >
             {item.expanded === false ? (

@@ -5,6 +5,8 @@ export interface OutlinerI18n {
   delete: string;
   zoomIn: string;
   untitled: string;
+  dragToMove: string;
+  zoomInAndDrag: string;
 }
 
 export interface OutlineItem {

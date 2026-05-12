@@ -57,21 +57,7 @@
 
 .outline-item-container {
   position: relative;
-}
-
-.outline-item-container[draggable='true']:not([style*='pointer-events: none']) {
-  cursor: grab;
-}
-
-.outline-item-container[draggable='true']:not(
-    [style*='pointer-events: none']
-  ):active {
-  cursor: grabbing;
-}
-
-.outline-item-container.dragging {
-  opacity: 0.5;
-  cursor: grabbing;
+  transition: opacity 0.2s;
 }
 
 .outline-item-wrapper.drag-over {
@@ -157,15 +143,6 @@
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
-}
-
-/* 只有在非只读模式下才显示拖拽样式 */
-.outline-item-wrapper:not([style*='pointer-events: none']) {
-  cursor: grab;
-}
-
-.outline-item-wrapper:not([style*='pointer-events: none']):active {
-  cursor: grabbing;
 }
 
 .outline-item-topic {
