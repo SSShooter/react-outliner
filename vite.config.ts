@@ -4,7 +4,9 @@ import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
+  const isBuild = command === 'build';
+
   if (mode === 'lib') {
     return {
       plugins: [react(),
@@ -31,11 +33,17 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
+      esbuild: {
+        drop: isBuild ? ['console', 'debugger'] : [],
+      },
     };
   }
 
   // 默认构建模式（演示页面）
   return {
     plugins: [react()],
+    esbuild: {
+      drop: isBuild ? ['console', 'debugger'] : [],
+    },
   };
 });
