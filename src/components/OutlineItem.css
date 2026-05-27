@@ -235,6 +235,17 @@
   background-color: transparent;
 }
 
+.breadcrumb-icon {
+  flex-shrink: 0;
+}
+
+.breadcrumb-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
 .outline-item-btn-group {
   position: absolute;
   left: -39px;

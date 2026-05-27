@@ -397,7 +397,7 @@ export function Outliner({ data, onChange, readonly, markdown, fileName, i18n: i
     <div className="outliner-container">
       <div className="outliner-breadcrumb">
         <button className="breadcrumb-item breadcrumb-root" onClick={() => setZoomedId(null)}>
-          <Home size={14} />{fileName && <span>{fileName}</span>}
+          <Home size={14} className="breadcrumb-icon" />{fileName && <span className="breadcrumb-text">{fileName}</span>}
         </button>
         {breadcrumbPath.map((node, index) => (
           <span key={node.id} className="breadcrumb-segment">
